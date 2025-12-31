@@ -1,38 +1,591 @@
-.App {
-  text-align: center;
+/* 1. LOCK THE VIEWPORT */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* This removes the scrollbars and prevents the "drop down" effect */
+html, body {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden; 
+  background-color: #ffffff;
+  overflow-y: auto;   
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+#root, .App {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 2. NAVBAR FIX */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 8%;
+  height: 80px; /* Fixed height for navbar */
+  position: relative;
+  z-index: 10;
+  background: transparent;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: #181E4B;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 40px;
+}
+
+.nav-links li {
+  font-weight: 500;
+  color: #212832;
+  cursor: pointer;
+}
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* This creates the space between Login and Signup */
+}
+.login,
+.signup {
+  background: #000;
+  color: white;
+  padding: 10px 25px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;   /* ✅ underline remove */
+  display: inline-block;   /* ✅ proper button look */
+}
+
+/* Hover state (optional but recommended) */
+.login:hover,
+.signup:hover {
+  color: white;
+  text-decoration: none;   /* ✅ hover underline remove */
+  background: #222;
+}
+
+/* 3. HERO SECTION FIX */
+.hero {
+  flex: 1; /* Takes up exactly the remaining space */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8%;
+  position: relative;
+  overflow: hidden; /* Clips any shapes that go outside the box */
+}
+
+.hero-text {
+  flex: 1;
+  z-index: 2;
+  padding-bottom: 40px; /* Adjusts vertical centering visually */
+}
+
+.tagline {
+  color: #df6951;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.hero-text h1 {
+  font-size: clamp(3rem, 5vw, 4.5rem); /* Responsive font size */
+  font-weight: 800;
+  line-height: 1.1;
+  color: #181e4b;
+  margin-bottom: 25px;
+}
+
+.description {
+  color: #5e6282;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  max-width: 450px;
+}
+
+.btn-primary {
+  background: #f1a501;
+  color: white;
+  padding: 15px 35px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(241, 165, 1, 0.2);
+}
+
+/* 4. IMAGE AND BACKGROUND SPLIT */
+.hero-image {
+  flex: 1.2;
+  position: relative;
+  display: flex;
+  justify-content: center; 
+  align-items: center;    
+  height: 100%;            
+}
+
+/* THE BACKGROUND SHAPE */
+.bg-shape {
+  position: absolute;
+  top: 0; 
+  right: -10%; 
+  width: 100%; 
+  height: 99%; 
+  background-color: #6776a0; 
+  z-index: 0;
+  border-bottom-left-radius: 200px; 
+}
+
+/* THE IMAGE */
+.hero-image img {
+  height: 89%;            
+  width: auto;
+  position: relative;
+  z-index: 1;           
+  object-fit: contain;
+  transform: translateY(-10px); 
+}
+/* Allow scrolling only on Login and Signup pages */
+.container.vh-100 {
+  overflow-y: auto;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Ensure the background doesn't split on these pages */
+body:has(.card) {
+  overflow-y: auto;
+  background: #f8f9fa; /* Light grey background for forms */
+}
+.container.py-5 {
+  overflow-y: auto !important;
+  max-height: 100vh;
+}
+
+/* Ensure the background stays white for this page */
+/* Update this in your App.css */
+body:has(.container.py-5) {
+  overflow-y: auto !important; /* Allow scrolling for the list */
+  height: auto;
+}
+.card {
+  min-height: 520px;
+}
+
+@media (max-width: 576px) {
+  .card {
+    min-height: auto;
+  }
+}
+/* REMOVE BLUE & UNDERLINE */
+.nav-links a {
+  text-decoration: none;
+  color: #212832;
+}
+
+.nav-links a:hover {
+  color: #181E4B;
+}
+
+/* ACTION BUTTONS */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+/* ================= MOBILE FIXES FOR DESTINATIONS ================= */
+
+/* ================= MOBILE GLOBAL FIX ================= */
+
+/* Allow scrolling on mobile */
+@media (max-width: 768px) {
+  html, body {
+    overflow-y: auto !important;
+    height: auto !important;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* ================= HOME PAGE MOBILE FIX ================= */
+@media (max-width: 768px) {
+
+  /* allow scrolling */
+  html, body {
+    overflow-y: auto !important;
+    height: auto !important;
+  }
+
+  /* hero container */
+  .hero {
+    flex-direction: column !important;
+    padding: 20px !important;
+    min-height: auto !important;
+    text-align: center;
+  }
+
+  /* hero text */
+  .hero-text {
+    width: 100%;
+    padding-bottom: 20px;
+  }
+
+  .hero-text h1 {
+    font-size: 2rem !important;
+    line-height: 1.2;
+  }
+
+  .description {
+    max-width: 100%;
+    font-size: 0.95rem;
+  }
+
+  /* hero image */
+  .hero-image {
+    width: 100%;
+    height: auto;
+    margin-top: 20px;
+  }
+
+  .hero-image img {
+    width: 100%;
+    height: auto !important;
+    object-fit: contain;
+    transform: none !important;
+  }
+
+  /* remove background split */
+  .bg-shape {
+    display: none !important;
+  }
+}
+/* ================= LOGIN & SIGNUP FIX ================= */
+
+@media (max-width: 576px) {
+  .container.vh-100 {
+    min-height: auto !important;
+    padding: 20px !important;
+  }
+
+  .card {
+    width: 100% !important;
+    margin: 0 auto;
+  }
+}
+
+/* ================= DESTINATIONS FIX ================= */
+
+@media (max-width: 768px) {
+  /* Disable sticky card on mobile */
+  .destination-card {
+    position: static !important;
+  }
+
+  /* Reduce image height */
+  .carousel-item img {
+    height: 200px !important;
+    object-fit: cover;
+  }
+
+  /* Fix Book Now button visibility */
+  .card-body {
+    padding-bottom: 20px;
+  }
+
+  .btn {
+    font-size: 0.95rem;
+  }
+
+  /* Add spacing between accordion and card */
+  .accordion {
+    margin-bottom: 20px;
+  }
+}
+
+/* ================= NAVBAR FIX ================= */
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    padding: 10px 15px;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .nav-actions {
+    margin-top: 10px;
+  }
+}
+
+/* ================= Flights ================= */
+.flights-dashboard {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-main);
+}
+
+/* Sidebar Styling */
+.dest-sidebar {
+  width: 320px;
+  background: #181E4B;
+  color: white;
   display: flex;
   flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 20px;
+  background: #11163a;
+}
+
+.dest-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.dest-item {
+  padding: 15px 20px;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.2s;
+}
+
+.dest-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.dest-item.active {
+  background: #F1A501;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.dest-icon-small {
+  font-size: 24px;
+  margin-right: 15px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.dest-info {
+  flex: 1;
+}
+
+.dest-name-small {
+  font-weight: bold;
+}
+
+.dest-type-small {
+  font-size: 11px;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.dest-price-tag {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Main Content Styling */
+.flight-main-content {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+  background-color: var(--bg-main);
+}
+
+.flight-header {
+  margin-bottom: 30px;
+}
+
+.flight-strip {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  margin-bottom: 15px;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.airline-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 20%;
+}
+
+.airline-logo-box {
+  width: 40px;
+  height: 40px;
+  background: #f1f1f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 20px;
+}
+
+.duration-line {
+  height: 2px;
+  background: #ddd;
+  width: 80px;
+  position: relative;
+  margin-bottom: 5px;
+}
+
+.duration-line::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: #F1A501;
+  position: absolute;
+  right: 0;
+  top: -2px;
+  border-radius: 50%;
+}
+/* ================= FAQ PAGE ================= */
+
+.faq-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 50px 24px 40px;   
+}
+
+/* FAQ Heading */
+.faq-container h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;              
+  margin-bottom: 20px; 
+  text-align: center;
+}
+
+
+/* FAQ Item Card */
+.faq-item {
+  background: #f9f9f9;
+  border-left: 5px solid #181E4B;
+  padding: 18px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect */
+.faq-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Question */
+.faq-item h4 {
+  font-size: 17px;
+  font-weight: 600;
+  color: #212832;
+  margin-bottom: 8px;
+}
+
+/* Answer */
+.faq-item p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #5e6282;
+}
+
+/* ================= MOBILE RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .faq-container {
+    padding: 100px 16px 40px;
   }
-  to {
-    transform: rotate(360deg);
+
+  .faq-container h2 {
+    font-size: 22px;
   }
+
+  .faq-item h4 {
+    font-size: 15px;
+  }
+
+  .faq-item p {
+    font-size: 14px;
+  }
+}
+.chatbot-container {
+  max-width: 500px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.chat-box {
+  height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.bot-msg {
+  background: #f1f1f1;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.user-msg {
+  background: #4f46e5;
+  color: white;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  text-align: right;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 8px;
+}
+
+.chat-input button {
+  padding: 8px 15px;
+}
+.mic-btn {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-left: 5px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.mic-btn:hover {
+  background-color: #4338ca;
 }
