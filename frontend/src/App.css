@@ -41,8 +41,11 @@ html, body {
 
 .nav-links {
   list-style: none;
-  display: flex;
-  gap: 40px;
+  display: flex;              /* 🔥 keeps items in one line */
+  align-items: center;        /* vertical center */
+  gap: 25px;                  /* space between items */
+  margin: 0;
+  padding: 0;
 }
 
 .nav-links li {
@@ -588,4 +591,20 @@ body:has(.container.py-5) {
 
 .mic-btn:hover {
   background-color: #4338ca;
+}
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .card, .card * {
+    visibility: visible;
+  }
+
+  .card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
 }

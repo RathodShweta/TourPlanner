@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 const Destinations = () => {
@@ -10,10 +10,24 @@ const Destinations = () => {
         setSelectedPlace({ name, desc, price, images });
     };
     const [loaded, setLoaded] = useState(false);
+    const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem("user"));
 
     const handleBookingClick = () => {
-        alert(t("loginFirstDest"));
+        if (!user) {
+            // ❌ Not logged in
+            alert(t("loginFirstDest")); // "Please login first to book your destination!"
+            navigate("/login");
+        } else {
+            // ✅ Logged in → go to payment page
+            navigate("/payment", {
+                state: {
+                    place: selectedPlace
+                }
+            });
+        }
     };
+
     return (
         <div className="container py-5" style={{ minHeight: "100vh" }}>
             <div className="d-flex justify-content-between align-items-center mb-5">
@@ -233,12 +247,15 @@ const Destinations = () => {
                                     <span className="badge rounded-pill bg-light text-dark p-2 px-3 shadow-sm border" style={{ fontSize: "1.1rem" }}>{selectedPlace.price}</span>
                                 </div>
                                 <p className="text-secondary mb-4" style={{ lineHeight: "1.6" }}>{selectedPlace.desc}</p>
-                                <button className="btn btn-warning w-100 fw-bold py-3 text-white"
+                                <button
+                                    className="btn btn-warning w-100 fw-bold py-3 text-white"
                                     style={{ borderRadius: "10px", backgroundColor: "#F1A501", border: "none" }}
                                     onClick={handleBookingClick}
+                                    disabled={!selectedPlace}
                                 >
                                     {t("bookNow")}
                                 </button>
+
                                 <button className="btn btn-link w-100 mt-2 text-decoration-none text-muted" onClick={() => setSelectedPlace(null)}>{t("closeDetails")}</button>
                             </div>
                         </div>
