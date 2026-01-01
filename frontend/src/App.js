@@ -25,6 +25,7 @@ function App() {
           <Route path="/flights" element={<Flights />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/tourbot" element={<TourBot />} />
+          
           {/* Bootstrap Login Page */}
           <Route path="/login" element={<Login />} />
           
