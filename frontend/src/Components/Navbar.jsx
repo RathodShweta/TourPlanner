@@ -18,7 +18,7 @@ const Navbar = () => {
     } else {
       setUser(null);
     }
-  }, [location]);
+  }, [location]); // 👈 KEY FIX
 
   const changeLanguage = (e) => {
     i18n.changeLanguage(e.target.value);
@@ -33,87 +33,31 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      {/* LOGO */}
       <Link to="/" style={{ textDecoration: "none" }}>
         <h2 className="logo">TourPlanner</h2>
       </Link>
 
-      {/* NAV LINKS */}
       <ul className="nav-links">
         <li><Link to="/destinations">{t("navDestinations")}</Link></li>
         <li><Link to="/hotels">{t("navHotels")}</Link></li>
         <li><Link to="/flights">{t("navFlights")}</Link></li>
         <li><Link to="/faq">{t("navFAQ")}</Link></li>
-
-        {/* 🤖 TourBot */}
-        <li>
-          <Link to="/tourbot" className="tourbot-btn">
-            🤖 TourBot
-          </Link>
-        </li>
-
-        {/* 📘 Booking Dropdown (RIGHT OF TourBot) */}
-        <li className="dropdown">
-          <button
-            className="btn dropdown-toggle booking-btn"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-             Booking
-          </button>
-
-          <ul className="dropdown-menu">
-            <li>
-              <Link className="dropdown-item" to="/flight-booking">
-                ✈️ Flight Booking
-              </Link>
-            </li>
-            <li>
-              <Link className="dropdown-item" to="/hotel-booking">
-                🏨 Hotel Booking
-              </Link>
-            </li>
-            <li>
-              <Link className="dropdown-item" to="/hotel-booking">
-                 📍 Destinations Booking
-              </Link>
-            </li>
-          </ul>
-        </li>
+        <Link to="/tourbot" className="tourbot-btn">🤖 TourBot</Link>
       </ul>
 
-      {/* RIGHT SIDE ACTIONS */}
       <div className="nav-actions">
         {user ? (
-          <div className="dropdown">
-            <button
-              className="btn dropdown-toggle fw-bold"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              style={{ color: "#181E4B" }}
-            >
+          <>
+            <span className="fw-bold" style={{ color: "#181E4B" }}>
               Hi, {user.name.split(" ")[0]}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="btn btn-link text-danger fw-bold text-decoration-none"
+            >
+              Logout
             </button>
-
-            <ul className="dropdown-menu dropdown-menu-end">
-              <li>
-                <Link className="dropdown-item" to="/profile">
-                  👤 Message
-                </Link>
-              </li>
-              <li><hr className="dropdown-divider" /></li>
-              <li>
-                <button
-                  className="dropdown-item text-danger fw-bold"
-                  onClick={handleLogout}
-                >
-                  🚪 Logout
-                </button>
-              </li>
-            </ul>
-          </div>
+          </>
         ) : (
           <>
             <Link to="/login" className="login">{t("login")}</Link>
@@ -121,7 +65,6 @@ const Navbar = () => {
           </>
         )}
 
-        {/* LANGUAGE */}
         <select
           onChange={changeLanguage}
           className="lang-select"
