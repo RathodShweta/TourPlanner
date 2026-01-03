@@ -4,6 +4,17 @@ import { useTranslation } from "react-i18next";
 
 const Hotels = () => {
   const { t } = useTranslation();
+  const isLoggedIn = !!localStorage.getItem("token");
+
+const handleBooking = () => {
+  if (!isLoggedIn) {
+    alert(t("loginFirst"));
+  } else {
+    alert("Booking successful ✅");
+    // or navigate("/bookings");
+  }
+};
+
 
   const hotelData = [
     {
@@ -140,7 +151,7 @@ const Hotels = () => {
       mapSrc: "https://www.google.com/maps?q=Alleppey&output=embed"
     }
   ];
- return (
+  return (
     <div className="container py-5" style={{ paddingBottom: "10%" }}>
 
       {/* HEADER */}
@@ -231,13 +242,15 @@ const Hotels = () => {
                 </div>
 
                 {/* BOOK BUTTON */}
-                <button
-                  className="btn btn-dark w-100 fw-bold"
-                  style={{ padding: "12px", borderRadius: "12px" }}
-                  onClick={() => alert(t("loginFirst"))}
-                >
-                  {t("bookStay")}
-                </button>
+<button
+  className="btn btn-dark w-100 fw-bold"
+  style={{ padding: "12px", borderRadius: "12px" }}
+  onClick={handleBooking}
+>
+  {t("bookStay")}
+</button>
+
+
 
               </div>
             </div>
