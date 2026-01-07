@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../App.css";
 
 const Flights = () => {
+  const navigate = useNavigate(); 
   // All Destinations
   const destinations = [
     { name: "Manali", type: "Hill Station", icon: "⛰️", price: "₹4,500" },
@@ -84,9 +85,19 @@ const Flights = () => {
                 <div className="h4 mb-0 fw-bold text-success">{activeDest.price}</div>
                 <small className="text-muted">Per Adult</small>
               </div>
-              <div className="flight-action">
-                <button className="btn btn-warning fw-bold text-white px-4">Book</button>
-              </div>
+              <button
+                className="btn btn-warning fw-bold text-white px-4"
+                onClick={() =>
+                  navigate("/FlightReview", {
+                    state: {
+                      destination: activeDest,
+                      flight
+                    }
+                  })
+                }
+              >
+                Book
+              </button>
             </div>
           ))}
         </div>

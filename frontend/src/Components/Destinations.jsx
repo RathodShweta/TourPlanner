@@ -4,26 +4,30 @@ import { useTranslation } from "react-i18next";
 
 const Destinations = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate(); // ✅ hook first
+
     const [selectedPlace, setSelectedPlace] = useState(null);
 
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    // ✅ select destination
     const handleSelect = (name, desc, price, images) => {
         setSelectedPlace({ name, desc, price, images });
     };
-    const [loaded, setLoaded] = useState(false);
-    const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem("user"));
 
+    // ✅ book now
     const handleBookingClick = () => {
+        if (!selectedPlace) {
+            alert("Please select a destination first");
+            return;
+        }
+
         if (!user) {
-            // ❌ Not logged in
-            alert(t("loginFirstDest")); // "Please login first to book your destination!"
+            alert(t("loginFirstDest"));
             navigate("/login");
         } else {
-            // ✅ Logged in → go to payment page
-            navigate("/payment", {
-                state: {
-                    place: selectedPlace
-                }
+            navigate("/paymntdetaildesti", {
+                state: { place: selectedPlace }
             });
         }
     };
@@ -222,12 +226,10 @@ const Destinations = () => {
                                             data-bs-interval="3000"
                                         >
                                             <img
-                                                src={img}
-                                                loading="lazy"
-                                                decoding="async"
-                                                className="d-block w-100"
+                                                src={selectedPlace.images[0]}
                                                 alt={selectedPlace.name}
-                                                style={{ height: "300px", objectFit: "cover" }}
+                                                className="card-img-top"
+                                                style={{ height: "250px", objectFit: "cover" }}
                                             />
                                         </div>
                                     ))}
@@ -248,10 +250,8 @@ const Destinations = () => {
                                 </div>
                                 <p className="text-secondary mb-4" style={{ lineHeight: "1.6" }}>{selectedPlace.desc}</p>
                                 <button
-                                    className="btn btn-warning w-100 fw-bold py-3 text-white"
-                                    style={{ borderRadius: "10px", backgroundColor: "#F1A501", border: "none" }}
+                                    className="btn btn-warning w-100 fw-bold text-white"
                                     onClick={handleBookingClick}
-                                    disabled={!selectedPlace}
                                 >
                                     {t("bookNow")}
                                 </button>
