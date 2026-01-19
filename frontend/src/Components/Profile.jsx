@@ -7,23 +7,33 @@ const Profile = () => {
 
   const [user, setUser] = useState(null);
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // 🔹 active tab
+  const [wishlist, setWishlist] = useState([]);
   const [activeTab, setActiveTab] = useState("profile");
+  const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    if (!storedUser) {
+      setLoading(false);
+      return;
     }
 
+    const parsedUser = JSON.parse(storedUser);
+    setUser(parsedUser);
+
+    // ✅ LOAD WISHLIST FROM localStorage
+    const allWishlist =
+      JSON.parse(localStorage.getItem("wishlist")) || [];
+
+    setWishlist(
+      allWishlist.filter((item) => item.userId === parsedUser.id)
+    );
+
+    // ✅ FETCH BOOKINGS
     fetch("http://localhost:5000/api/bookings/my", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => {
@@ -33,89 +43,114 @@ const Profile = () => {
       .catch(() => setLoading(false));
   }, [token]);
 
-  if (!user) {
-    return <p className="text-center mt-5">Please login to view profile</p>;
-  }
+  // ✅ REMOVE FROM WISHLIST
+  const removeFromWishlist = (hotelId) => {
+    const allWishlist =
+      JSON.parse(localStorage.getItem("wishlist")) || [];
 
-  if (loading) {
-    return <p className="text-center mt-5">Loading profile...</p>;
-  }
+    const updated = allWishlist.filter(
+      (item) => !(item.id === hotelId && item.userId === user.id)
+    );
+
+    localStorage.setItem("wishlist", JSON.stringify(updated));
+    setWishlist(updated.filter((i) => i.userId === user.id));
+  };
+
+  if (loading) return <p className="center-text">Loading profile...</p>;
+  if (!user) return <p className="center-text">Please login</p>;
 
   return (
-    <div className="profile-container">
-
-      {/* 🔹 PROFILE NAVBAR */}
-      <div className="profile-nav">
-        <button
-          className={activeTab === "profile" ? "active" : ""}
-          onClick={() => setActiveTab("profile")}
-        >
-          👤 Profile
-        </button>
-
-        <button
-          className={activeTab === "wishlist" ? "active" : ""}
-          onClick={() => setActiveTab("wishlist")}
-        >
-          ❤️ Wishlist
-        </button>
-
-        <button
-          className={activeTab === "bookings" ? "active" : ""}
-          onClick={() => setActiveTab("bookings")}
-        >
-          📘 Bookings
-        </button>
-      </div>
-
-      {/* 👤 PROFILE TAB */}
-      {activeTab === "profile" && (
-        <div className="profile-card">
-          <img
-            src={
-              user.photo
-                ? `http://localhost:5000/uploads/${user.photo}`
-                : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-            }
-            alt="Profile"
-            className="profile-img"
-          />
-
-          <h2>{user.name}</h2>
-          <p>📧 {user.email}</p>
-          <p>📞 {user.phone || "Not added"}</p>
-
-          <h4>Total Trips Planned: {bookings.length}</h4>
+    <>
+      {/* 🔹 TOP NAVBAR */}
+      <div className="profile-container">
+        <div className="profile-nav">
+          <button
+            className={activeTab === "profile" ? "active" : ""}
+            onClick={() => setActiveTab("profile")}
+          >
+            👤 Profile
+          </button>
 
           <button
-            className="btn btn-primary mt-3"
-            onClick={() => navigate("/EditProfile")}
+            className={activeTab === "wishlist" ? "active" : ""}
+            onClick={() => setActiveTab("wishlist")}
           >
-            ✏️ Edit Profile
+            ❤️ Wishlist
+            {wishlist.length > 0 && (
+              <span className="wishlist-badge">{wishlist.length}</span>
+            )}
           </button>
+
+          <button
+            className={activeTab === "bookings" ? "active" : ""}
+            onClick={() => setActiveTab("bookings")}
+          >
+            📘 Bookings
+          </button>
+        </div>
+      </div>
+
+      {/* ================= PROFILE TAB ================= */}
+      {activeTab === "profile" && (
+        <div className="profile-container">
+          <div className="profile-card">
+            <img
+              src={
+                user.photo
+                  ? `http://localhost:5000/uploads/${user.photo}`
+                  : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+              }
+              alt="Profile"
+              className="profile-img"
+            />
+
+            <h2>{user.name}</h2>
+            <p>📧 {user.email}</p>
+            <p>📞 {user.phone || "Not added"}</p>
+
+            <h4>Total Trips Planned: {bookings.length}</h4>
+
+            <button
+              className="btn btn-primary mt-3"
+              onClick={() => navigate("/EditProfile")}
+            >
+              ✏️ Edit Profile
+            </button>
+          </div>
         </div>
       )}
 
-      {/* ❤️ WISHLIST TAB */}
+      {/* ================= WISHLIST TAB (FULL SCREEN) ================= */}
       {activeTab === "wishlist" && (
-        <div className="profile-section">
-          <h3>❤️ Saved Destinations</h3>
-
-          {user.savedDestinations && user.savedDestinations.length > 0 ? (
-            <ul>
-              {user.savedDestinations.map((dest, index) => (
-                <li key={index}>{dest}</li>
-              ))}
-            </ul>
+        <div className="wishlist-fullscreen">
+          {wishlist.length === 0 ? (
+            <p className="center-text">No hotels in wishlist</p>
           ) : (
-            <p>No saved destinations</p>
+            <div className="wishlist-grid-full">
+              {wishlist.map((hotel) => (
+                <div className="wishlist-card-full" key={hotel.id}>
+                  <img src={hotel.images[0]} alt={hotel.name} />
+                  <div className="wishlist-body">
+                    <h4>{hotel.name}</h4>
+                    <p className="location">{hotel.location}</p>
+                    <p className="price">{hotel.price}</p>
+                    <button
+                      className="remove-btn"
+                      onClick={() => removeFromWishlist(hotel.id)}
+                    >
+                      REMOVE
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
 
-      {/* 📘 BOOKINGS TAB */}
+      {/* ================= BOOKINGS TAB ================= */}
       {activeTab === "bookings" && (
-        <div className="profile-section">
+        <div className="profile-container profile-section">
           <h3>📘 Booking History</h3>
 
           {bookings.length === 0 ? (
@@ -150,8 +185,7 @@ const Profile = () => {
           )}
         </div>
       )}
-
-    </div>
+    </>
   );
 };
 

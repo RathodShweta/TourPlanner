@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -6,7 +6,40 @@ const Hotels = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isLoggedIn = !!localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
 
+  /* ---------------- WISHLIST ---------------- */
+  const getWishlist = () =>
+    JSON.parse(localStorage.getItem("wishlist")) || [];
+
+  const [wishlist, setWishlist] = useState(getWishlist());
+
+  useEffect(() => {
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  }, [wishlist]);
+
+  const isInWishlist = (id) =>
+    wishlist.some((item) => item.id === id && item.userId === user?.id);
+
+  const toggleWishlist = (hotel) => {
+    if (!isLoggedIn) {
+      alert(t("loginFirst"));
+      navigate("/login");
+      return;
+    }
+
+    if (isInWishlist(hotel.id)) {
+      setWishlist(
+        wishlist.filter(
+          (item) => !(item.id === hotel.id && item.userId === user.id)
+        )
+      );
+    } else {
+      setWishlist([...wishlist, { ...hotel, userId: user.id }]);
+    }
+  };
+
+  /* ---------------- BOOKING ---------------- */
   const handleBooking = (hotel) => {
     if (!hotel || !hotel.price) {
       alert("Hotel price not available");
@@ -19,16 +52,14 @@ const Hotels = () => {
       return;
     }
 
-    const amount = Number(
-      hotel.price.replace(/[^0-9]/g, "")
-    );
+    const amount = Number(hotel.price.replace(/[^0-9]/g, ""));
 
     navigate("/Hotelpaydestin", {
       state: {
         hotel,
         nights: 1,
         totalAmount: amount,
-        user: JSON.parse(localStorage.getItem("user"))
+        user
       }
     });
   };
@@ -169,9 +200,8 @@ const Hotels = () => {
       mapSrc: "https://www.google.com/maps?q=Alleppey&output=embed"
     }
   ];
-  return (
+   return (
     <div className="container py-5" style={{ paddingBottom: "10%" }}>
-
       {/* HEADER */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="fw-bold">{t("premiumHotels")}</h2>
@@ -189,15 +219,37 @@ const Hotels = () => {
               {/* IMAGE CAROUSEL */}
               <div
                 id={`carousel-${hotel.id}`}
-                className="carousel slide carousel-fade"
+                className="carousel slide carousel-fade position-relative"
                 data-bs-ride="carousel"
                 data-bs-interval="3000"
               >
+                {/* ❤️ HEART ICON */}
+                <button
+                  onClick={() => toggleWishlist(hotel)}
+                  style={{
+                    position: "absolute",
+                    top: "10px",
+                    right: "10px",
+                    zIndex: 10,
+                    background: "rgba(255,255,255,0.9)",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "40px",
+                    height: "40px",
+                    fontSize: "20px",
+                    cursor: "pointer"
+                  }}
+                >
+                  {isInWishlist(hotel.id) ? "❤️" : "🤍"}
+                </button>
+
                 <div className="carousel-inner">
                   {hotel.images.map((img, index) => (
                     <div
                       key={index}
-                      className={`carousel-item ${index === 0 ? "active" : ""}`}
+                      className={`carousel-item ${
+                        index === 0 ? "active" : ""
+                      }`}
                     >
                       <img
                         src={img}
@@ -230,13 +282,9 @@ const Hotels = () => {
 
               {/* CARD BODY */}
               <div className="card-body d-flex flex-column justify-content-between">
-
-                {/* DETAILS */}
                 <div>
                   <h5 className="fw-bold">{hotel.name}</h5>
-                  <p className="text-muted small mb-1">
-                    📍 {hotel.location}
-                  </p>
+                  <p className="text-muted small mb-1">📍 {hotel.location}</p>
                   <p className="fw-bold text-primary">{hotel.price}</p>
                 </div>
 
@@ -266,13 +314,12 @@ const Hotels = () => {
                 >
                   {t("bookStay")}
                 </button>
-
               </div>
+
             </div>
           </div>
         ))}
       </div>
-
     </div>
   );
 };
