@@ -1,22 +1,51 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const HotelConfirm = () => {
-  const { state } = useLocation();
+const TOTAL_ROOMS = 24;
+
+// key to store booked room count per hotel
+const getRoomKey = (hotel) =>
+  `HOTEL_ROOMS_${hotel.name}`;
+
+const Hotelpaydestin = () => {
+  const location = useLocation();
   const navigate = useNavigate();
 
-  const hotel = state?.hotel;
-  const user = state?.user;
-
-  // extract price number from "₹5,500 / night"
-  const pricePerNight = Number(
-    hotel.price.replace(/[^0-9]/g, "")
-  );
+  const hotel = location.state?.hotel;
+  const user = location.state?.user;
 
   const [travelDate, setTravelDate] = useState("");
   const [days, setDays] = useState(1);
 
-  const totalAmount = pricePerNight * days;
+  if (!hotel || !user) {
+    return (
+      <h3 className="text-center mt-5">
+        No hotel selected
+      </h3>
+    );
+  }
+
+  /* ---------------- ROOM AVAILABILITY LOGIC ---------------- */
+
+  const roomKey = getRoomKey(hotel);
+
+  const bookedRooms =
+    Number(localStorage.getItem(roomKey)) || 0;
+
+  const availableRooms = TOTAL_ROOMS - bookedRooms;
+
+  const isAvailable = availableRooms > 0;
+
+  /* ---------------- PRICE LOGIC ---------------- */
+
+  const pricePerNight = Number(
+    hotel.price.replace(/[^0-9]/g, "")
+  );
+
+  // only estimate here (final amount is calculated later)
+  const estimatedAmount = pricePerNight * days;
+
+  /* ---------------- BOOK HANDLER ---------------- */
 
   const handleConfirm = () => {
     if (!travelDate) {
@@ -24,119 +53,127 @@ const HotelConfirm = () => {
       return;
     }
 
-    const ok = window.confirm(
-      "Are you sure you want to proceed to payment?"
-    );
-
-    if (ok) {
-      navigate("/Hotelpayment", {
-        state: {
-          hotel,
-          user,
-          travelDate,
-          nights: days,
-          totalAmount
-        }
-      });
+    if (!isAvailable) {
+      alert("Rooms are not available");
+      return;
     }
+
+    if (days > availableRooms) {
+      alert(`Only ${availableRooms} rooms available`);
+      return;
+    }
+
+    navigate("/HotelSeatLayout", {
+      state: {
+        hotel,
+        user,
+        travelDate,
+        nights: days,
+        pricePerNight
+      }
+    });
   };
 
   return (
-    <div className="container py--1 d-flex justify-content-center">
-      {/* 🔳 MAIN BOX */}
+    <div className="container py-3">
+      <h4 className="fw-bold text-center mb-4">
+        🏨 Confirm Booking Details
+      </h4>
+
       <div
-        className="card shadow-lg p-4"
-        style={{
-          maxWidth: "420px",
-          width: "100%",
-          borderRadius: "16px"
-        }}
+        className="card shadow-lg p-4 mx-auto"
+        style={{ maxWidth: "900px", borderRadius: "16px" }}
       >
-        {/* TITLE */}
-        <h4 className="fw-bold text-center mb-4">
-          🏨 Confirm Booking Details
-        </h4>
+        <div className="row g-4">
 
-        {/* 👤 USER DETAILS */}
-        <div className="mb-3">
-          <h6 className="fw-bold mb-2">👤 User Details</h6>
+          {/* LEFT SIDE */}
+          <div className="col-md-6">
+            <h6 className="fw-bold">👤 User Details</h6>
+            <p><b>Name:</b> {user.name}</p>
+            <p><b>Email:</b> {user.email}</p>
 
-          <div className="border rounded p-2 small">
-            <p className="mb-1">
-              <b>Name:</b> {user?.name}
+            <hr />
+
+            {/* 💺 ROOM AVAILABILITY */}
+            <h6 className="fw-bold">💺 Room Availability</h6>
+
+            <p><b>Total Rooms:</b> {TOTAL_ROOMS}</p>
+
+            <p className="text-danger">
+              <b>Booked:</b> {bookedRooms}
             </p>
-            <p className="mb-0">
-              <b>Email:</b> {user?.email}
+
+            <p className={isAvailable ? "text-success" : "text-danger"}>
+              <b>Status:</b>{" "}
+              {isAvailable ? "Available" : "Not Available"}
             </p>
+
+            <p>
+              <b>Available Rooms:</b> {availableRooms}
+            </p>
+
+            {/* 🔲 BOOK BUTTON */}
+            <div
+              className="border rounded d-flex align-items-center justify-content-center mt-3"
+              style={{
+                height: "100px",
+                cursor: isAvailable ? "pointer" : "not-allowed",
+                background: isAvailable ? "#f8f9fa" : "#e9ecef",
+                opacity: isAvailable ? 1 : 0.6
+              }}
+              onClick={isAvailable ? handleConfirm : undefined}
+            >
+              <div className="text-center">
+                <h5 className="fw-bold mb-1">BOOK</h5>
+                <small className="text-muted">
+                  {isAvailable ? "Select Seats" : "Rooms Full"}
+                </small>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* 🏨 HOTEL DETAILS */}
-        <div className="mb-3">
-          <h6 className="fw-bold mb-2">🏨 Hotel Details</h6>
+          {/* RIGHT SIDE */}
+          <div className="col-md-6">
+            <h6 className="fw-bold">🏨 Hotel Details</h6>
+            <p><b>Hotel:</b> {hotel.name}</p>
+            <p><b>Location:</b> {hotel.location}</p>
+            <p><b>Price / Night:</b> ₹{pricePerNight}</p>
 
-          <div className="border rounded p-2 small">
-            <p className="mb-1">
-              <b>Hotel:</b> {hotel?.name}
-            </p>
-            <p className="mb-1">
-              <b>Location:</b> {hotel?.location}
-            </p>
-            <p className="mb-0">
-              <b>Price / Night:</b> ₹{pricePerNight}
-            </p>
-          </div>
-        </div>
-
-        {/* 📅 TRAVEL DETAILS */}
-        <div className="mb-3">
-          <h6 className="fw-bold mb-2">📅 Travel Details</h6>
-
-          <div className="border rounded p-2">
-            <label className="form-label small mb-1">
-              Travel Date
-            </label>
+            <label className="fw-bold">Travel Date</label>
             <input
               type="date"
-              className="form-control mb-2"
+              className="form-control mb-3"
               value={travelDate}
               onChange={(e) => setTravelDate(e.target.value)}
             />
 
-            <label className="form-label small mb-1">
-              Number of Days
-            </label>
+            <label className="fw-bold">Number of Nights</label>
             <select
-              className="form-select"
+              className="form-select mb-3"
               value={days}
               onChange={(e) => setDays(Number(e.target.value))}
             >
-              {[1, 2, 3, 4, 5, 6, 7].map((d) => (
+              {Array.from(
+                { length: Math.min(7, availableRooms) },
+                (_, i) => i + 1
+              ).map((d) => (
                 <option key={d} value={d}>
-                  {d} Day{d > 1 && "s"}
+                  {d} Night{d > 1 && "s"}
                 </option>
               ))}
             </select>
+
+            <div className="border rounded p-3 text-center mb-3">
+              <h5 className="fw-bold text-primary">
+                Estimated Amount: ₹{estimatedAmount}
+              </h5>
+            </div>
           </div>
-        </div>
 
-        {/* 💰 TOTAL */}
-        <div className="border rounded p-3 text-center mb-3">
-          <h5 className="text-primary fw-bold mb-0">
-            Total Amount: ₹{totalAmount}
-          </h5>
         </div>
-
-        {/* ACTION */}
-        <button
-          className="btn btn-success w-100 fw-bold"
-          onClick={handleConfirm}
-        >
-          Confirm & Pay
-        </button>
       </div>
     </div>
   );
 };
 
-export default HotelConfirm;
+export default Hotelpaydestin;

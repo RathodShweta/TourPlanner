@@ -7,37 +7,44 @@ const Hotelpayment = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  const { hotel, user, travelDate, nights, totalAmount } = state;
+  const {
+    hotel,
+    user,
+    travelDate,
+    nights,
+    totalAmount,
+    roomKey
+  } = state || {};
 
-  const [status, setStatus] = useState("pending"); 
-  // pending | success | failed
+  const [status, setStatus] = useState("pending"); // pending | success | failed
   const [txnId, setTxnId] = useState("");
 
-  // 🔒 Backend simulation (admin decides)
+  // 🔒 FRONTEND backend simulation
   const backendCheck = async () => {
-    try {
-      const res = await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            approved: false, // 👉 change to true for success
-            transactionId: "TXN" + Date.now()
-          });
-        }, 1000);
-      });
-      return res;
-    } catch {
-      return null;
-    }
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          approved: false, // 🔁 true = success, false = failed
+          transactionId: "TXN" + Date.now()
+        });
+      }, 1000);
+    });
   };
 
-  const startPayment = async () => {
+  const startPayment = () => {
     setStatus("pending");
     setTxnId("");
 
-    // ⏳ show QR for 5–6 seconds
     setTimeout(async () => {
-      const response = await backendCheck();
+      let response = null;
 
+      try {
+        response = await backendCheck();
+      } catch {
+        response = null;
+      }
+
+      // ✅ SUCCESS ONLY IF approved === true
       const finalStatus =
         response && response.approved === true
           ? "success"
@@ -49,7 +56,18 @@ const Hotelpayment = () => {
       setTxnId(transactionId);
       setStatus(finalStatus);
 
-      // ✅ SAVE BOTH SUCCESS & FAILED
+      // 💺 REDUCE ROOMS ONLY ON SUCCESS
+      if (finalStatus === "success" && roomKey) {
+        const currentBooked =
+          Number(localStorage.getItem(roomKey)) || 0;
+
+        localStorage.setItem(
+          roomKey,
+          currentBooked + nights
+        );
+      }
+
+      // 🧾 SAVE BOOKING HISTORY (SUCCESS + FAILED)
       const booking = {
         id: transactionId,
         hotel,
@@ -68,10 +86,10 @@ const Hotelpayment = () => {
         STORAGE_KEY,
         JSON.stringify([...prev, booking])
       );
-    }, 5500); // 5.5 sec delay
+    }, 5500); // QR visible time
   };
 
-  // auto start when page loads
+  // auto start payment
   useEffect(() => {
     startPayment();
   }, []);
@@ -86,15 +104,17 @@ const Hotelpayment = () => {
           🧾 Payment Receipt
         </h5>
 
-        {/* DETAILS */}
         <p><b>Name:</b> {user?.name}</p>
         <p><b>Email:</b> {user?.email}</p>
         <p><b>Hotel:</b> {hotel?.name}</p>
-        <p><b>Travel Date:</b> {travelDate}</p>
-        <p><b>Days:</b> {nights}</p>
+        <p><b>Date:</b> {travelDate}</p>
+        <p><b>Nights:</b> {nights}</p>
+
         <p className="fw-bold text-success">
-          Amount: ₹{totalAmount}
-        </p>
+  Amount: ₹{totalAmount}
+</p>
+
+      
 
         {/* ⏳ PENDING */}
         {status === "pending" && (
@@ -103,7 +123,7 @@ const Hotelpayment = () => {
               src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=UPI"
               alt="QR"
             />
-            <p className="text-muted small mt-2">
+            <p className="small text-muted mt-2">
               Waiting for payment confirmation...
             </p>
             <div className="spinner-border spinner-border-sm text-primary"></div>
@@ -133,7 +153,6 @@ const Hotelpayment = () => {
           </div>
         )}
 
-        {/* ALWAYS VISIBLE */}
         <button
           className="btn btn-dark w-100 mt-2"
           onClick={() => navigate("/hotelbooking")}

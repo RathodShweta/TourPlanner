@@ -608,3 +608,27 @@ body:has(.container.py-5) {
     width: 100%;
   }
 }
+.seat-box {
+  width: 60px;
+  height: 60px;
+  border: 1px solid #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.seat-box:hover {
+  transform: scale(1.08);
+}
+
+.seat-box.selected {
+  background: #28a745;
+  color: white;
+}
+
+.seat-box.booked {
+  background: #dc3545;
+  color: white;
+}
