@@ -1,19 +1,37 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 const Hotels = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const isLoggedIn = !!localStorage.getItem("token");
 
-const handleBooking = () => {
-  if (!isLoggedIn) {
-    alert(t("loginFirst"));
-  } else {
-    alert("Booking successful ✅");
-    // or navigate("/bookings");
-  }
-};
+  const handleBooking = (hotel) => {
+    if (!hotel || !hotel.price) {
+      alert("Hotel price not available");
+      return;
+    }
+
+    if (!isLoggedIn) {
+      alert(t("loginFirst"));
+      navigate("/login");
+      return;
+    }
+
+    const amount = Number(
+      hotel.price.replace(/[^0-9]/g, "")
+    );
+
+    navigate("/Hotelpaydestin", {
+      state: {
+        hotel,
+        nights: 1,
+        totalAmount: amount,
+        user: JSON.parse(localStorage.getItem("user"))
+      }
+    });
+  };
 
 
   const hotelData = [
@@ -241,16 +259,13 @@ const handleBooking = () => {
                   ></iframe>
                 </div>
 
-                {/* BOOK BUTTON */}
-<button
-  className="btn btn-dark w-100 fw-bold"
-  style={{ padding: "12px", borderRadius: "12px" }}
-  onClick={handleBooking}
->
-  {t("bookStay")}
-</button>
-
-
+                <button
+                  className="btn btn-dark w-100 fw-bold"
+                  style={{ padding: "12px", borderRadius: "12px" }}
+                  onClick={() => handleBooking(hotel)}
+                >
+                  {t("bookStay")}
+                </button>
 
               </div>
             </div>

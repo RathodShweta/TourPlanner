@@ -60,17 +60,17 @@ const Navbar = () => {
 
             <ul className="dropdown-menu">
               <li>
-                <Link className="dropdown-item" to="/flight-booking">
+                <Link className="dropdown-item" to="/FlightBooking">
                   ✈️ Flight Booking
                 </Link>
               </li>
               <li>
-                <Link className="dropdown-item" to="/hotel-booking">
+                <Link className="dropdown-item" to="/HotelBooking">
                   🏨 Hotel Booking
                 </Link>
               </li>
               <li>
-                <Link className="dropdown-item" to="/destination-booking">
+                <Link className="dropdown-item" to="/DestinationBooking">
                   📍 Destinations Booking
                 </Link>
               </li>
@@ -106,9 +106,10 @@ const Navbar = () => {
 
             <ul className="dropdown-menu dropdown-menu-end">
               <li>
-                <Link className="dropdown-item" to="/profile">
-                  💬 Admin Message
+                <Link className="dropdown-item" to="/Profile">
+                  Profile
                 </Link>
+
               </li>
               <li><hr className="dropdown-divider" /></li>
               <li>
