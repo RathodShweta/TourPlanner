@@ -1,11 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const TOTAL_ROOMS = 24;
-
-// key to store booked room count per hotel
-const getRoomKey = (hotel) =>
-  `HOTEL_ROOMS_${hotel.name}`;
 
 const Hotelpaydestin = () => {
   const location = useLocation();
@@ -16,7 +13,29 @@ const Hotelpaydestin = () => {
 
   const [travelDate, setTravelDate] = useState("");
   const [days, setDays] = useState(1);
+  const [bookedSeats, setBookedSeats] = useState([]);
 
+  /* ---------------- FETCH BOOKED SEATS (HOOKS ALWAYS RUN) ---------------- */
+  useEffect(() => {
+    if (!hotel || !travelDate) return;
+
+    axios
+      .get("http://localhost:5000/api/hotel-bookings/seats", {
+        params: {
+          hotelId: hotel._id,
+          travelDate
+        }
+      })
+      .then((res) => {
+        setBookedSeats(res.data.seats || []);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch booked seats", err);
+        setBookedSeats([]);
+      });
+  }, [hotel, travelDate]);
+
+  /* ---------------- SAFE EARLY RETURN AFTER HOOKS ---------------- */
   if (!hotel || !user) {
     return (
       <h3 className="text-center mt-5">
@@ -26,27 +45,15 @@ const Hotelpaydestin = () => {
   }
 
   /* ---------------- ROOM AVAILABILITY LOGIC ---------------- */
-
-  const roomKey = getRoomKey(hotel);
-
-  const bookedRooms =
-    Number(localStorage.getItem(roomKey)) || 0;
-
+  const bookedRooms = bookedSeats.length;
   const availableRooms = TOTAL_ROOMS - bookedRooms;
-
   const isAvailable = availableRooms > 0;
 
   /* ---------------- PRICE LOGIC ---------------- */
-
-  const pricePerNight = Number(
-    hotel.price.replace(/[^0-9]/g, "")
-  );
-
-  // only estimate here (final amount is calculated later)
+  const pricePerNight = Number(hotel.pricePerNight);
   const estimatedAmount = pricePerNight * days;
 
   /* ---------------- BOOK HANDLER ---------------- */
-
   const handleConfirm = () => {
     if (!travelDate) {
       alert("Please select travel date");
@@ -54,7 +61,7 @@ const Hotelpaydestin = () => {
     }
 
     if (!isAvailable) {
-      alert("Rooms are not available");
+      alert("Rooms are not available for selected date");
       return;
     }
 
@@ -94,7 +101,6 @@ const Hotelpaydestin = () => {
 
             <hr />
 
-            {/* 💺 ROOM AVAILABILITY */}
             <h6 className="fw-bold">💺 Room Availability</h6>
 
             <p><b>Total Rooms:</b> {TOTAL_ROOMS}</p>
@@ -105,28 +111,48 @@ const Hotelpaydestin = () => {
 
             <p className={isAvailable ? "text-success" : "text-danger"}>
               <b>Status:</b>{" "}
-              {isAvailable ? "Available" : "Not Available"}
+              {!travelDate
+                ? "Select Date"
+                : isAvailable
+                ? "Available"
+                : "Not Available"}
             </p>
 
             <p>
               <b>Available Rooms:</b> {availableRooms}
             </p>
 
-            {/* 🔲 BOOK BUTTON */}
             <div
               className="border rounded d-flex align-items-center justify-content-center mt-3"
               style={{
                 height: "100px",
-                cursor: isAvailable ? "pointer" : "not-allowed",
-                background: isAvailable ? "#f8f9fa" : "#e9ecef",
-                opacity: isAvailable ? 1 : 0.6
+                cursor:
+                  travelDate && isAvailable
+                    ? "pointer"
+                    : "not-allowed",
+                background:
+                  travelDate && isAvailable
+                    ? "#f8f9fa"
+                    : "#e9ecef",
+                opacity:
+                  travelDate && isAvailable
+                    ? 1
+                    : 0.6
               }}
-              onClick={isAvailable ? handleConfirm : undefined}
+              onClick={
+                travelDate && isAvailable
+                  ? handleConfirm
+                  : undefined
+              }
             >
               <div className="text-center">
                 <h5 className="fw-bold mb-1">BOOK</h5>
                 <small className="text-muted">
-                  {isAvailable ? "Select Seats" : "Rooms Full"}
+                  {!travelDate
+                    ? "Select Date"
+                    : isAvailable
+                    ? "Select Rooms"
+                    : "Rooms Full"}
                 </small>
               </div>
             </div>
@@ -152,6 +178,7 @@ const Hotelpaydestin = () => {
               className="form-select mb-3"
               value={days}
               onChange={(e) => setDays(Number(e.target.value))}
+              disabled={!isAvailable}
             >
               {Array.from(
                 { length: Math.min(7, availableRooms) },
