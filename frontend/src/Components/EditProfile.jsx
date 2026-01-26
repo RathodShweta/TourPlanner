@@ -87,7 +87,7 @@ const EditProfile = () => {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "500px" }}>
+    <div className="container mt-5 responsive-card">
       <h2 className="text-center mb-4">✏️ Edit Profile</h2>
 
       {error && <p className="text-danger text-center">{error}</p>}
@@ -102,12 +102,7 @@ const EditProfile = () => {
               "https://cdn-icons-png.flaticon.com/512/149/149071.png"
             }
             alt="Profile"
-            style={{
-              width: "120px",
-              height: "120px",
-              borderRadius: "50%",
-              objectFit: "cover",
-            }}
+            className="edit-profile-img"
           />
         </div>
 

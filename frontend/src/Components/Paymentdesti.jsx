@@ -113,8 +113,7 @@ const Payment = () => {
   return (
     <div className="container py-4 d-flex justify-content-center">
       <div
-        className="card shadow-lg print-area"
-        style={{ width: "420px", borderRadius: "16px" }}
+        className="card shadow-lg print-area responsive-card"
       >
         <div className="card-body">
           <h4 className="fw-bold text-center mb-3">

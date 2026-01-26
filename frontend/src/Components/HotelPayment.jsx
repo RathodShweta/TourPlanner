@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const STORAGE_KEY = "HotelBooking";
 
@@ -13,83 +14,40 @@ const Hotelpayment = () => {
     travelDate,
     nights,
     totalAmount,
-    roomKey
+    selectedSeats
   } = state || {};
 
-  const [status, setStatus] = useState("pending"); // pending | success | failed
+  const [status, setStatus] = useState("pending");
   const [txnId, setTxnId] = useState("");
-
-  // 🔒 FRONTEND backend simulation
-  const backendCheck = async () => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          approved: false, // 🔁 true = success, false = failed
-          transactionId: "TXN" + Date.now()
-        });
-      }, 1000);
-    });
-  };
 
   const startPayment = () => {
     setStatus("pending");
     setTxnId("");
 
     setTimeout(async () => {
-      let response = null;
+      const transactionId = "TXN" + Date.now();
+
+      // ✅ AUTO SUCCESS
+      setTxnId(transactionId);
+      setStatus("success");
 
       try {
-        response = await backendCheck();
-      } catch {
-        response = null;
+        // ✅ SAVE BOOKING IN BACKEND
+        await axios.post("http://localhost:5000/api/hotel-bookings", {
+          hotelId: hotel._id,
+          userId: user.id, // ✅ FIXED
+          travelDate,
+          nights,
+          seats: selectedSeats,
+          totalAmount,
+          transactionId
+        });
+      } catch (err) {
+        console.error("Booking save failed", err);
       }
-
-      // ✅ SUCCESS ONLY IF approved === true
-      const finalStatus =
-        response && response.approved === true
-          ? "success"
-          : "failed";
-
-      const transactionId =
-        response?.transactionId || "TXN" + Date.now();
-
-      setTxnId(transactionId);
-      setStatus(finalStatus);
-
-      // 💺 REDUCE ROOMS ONLY ON SUCCESS
-      if (finalStatus === "success" && roomKey) {
-        const currentBooked =
-          Number(localStorage.getItem(roomKey)) || 0;
-
-        localStorage.setItem(
-          roomKey,
-          currentBooked + nights
-        );
-      }
-
-      // 🧾 SAVE BOOKING HISTORY (SUCCESS + FAILED)
-      const booking = {
-        id: transactionId,
-        hotel,
-        user,
-        travelDate,
-        nights,
-        totalAmount,
-        status: finalStatus,
-        dateTime: new Date().toLocaleString()
-      };
-
-      const prev =
-        JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify([...prev, booking])
-      );
-    }, 5500); // QR visible time
+    }, 5000);
   };
 
-  // auto start payment
   useEffect(() => {
     startPayment();
   }, []);
@@ -97,8 +55,7 @@ const Hotelpayment = () => {
   return (
     <div className="container py-5 d-flex justify-content-center">
       <div
-        className="card shadow-lg p-4"
-        style={{ width: "380px", borderRadius: "16px" }}
+        className="card shadow-lg p-4 responsive-card"
       >
         <h5 className="fw-bold text-center mb-3">
           🧾 Payment Receipt
@@ -109,12 +66,11 @@ const Hotelpayment = () => {
         <p><b>Hotel:</b> {hotel?.name}</p>
         <p><b>Date:</b> {travelDate}</p>
         <p><b>Nights:</b> {nights}</p>
+        <p><b>Seats:</b> {selectedSeats?.join(", ")}</p>
 
         <p className="fw-bold text-success">
-  Amount: ₹{totalAmount}
-</p>
-
-      
+          Amount: ₹{totalAmount}
+        </p>
 
         {/* ⏳ PENDING */}
         {status === "pending" && (
@@ -127,21 +83,6 @@ const Hotelpayment = () => {
               Waiting for payment confirmation...
             </p>
             <div className="spinner-border spinner-border-sm text-primary"></div>
-          </div>
-        )}
-
-        {/* ❌ FAILED */}
-        {status === "failed" && (
-          <div className="my-3">
-            <div className="alert alert-danger text-center">
-              ❌ Payment Failed
-            </div>
-            <button
-              className="btn btn-warning w-100"
-              onClick={startPayment}
-            >
-              Retry Payment
-            </button>
           </div>
         )}
 

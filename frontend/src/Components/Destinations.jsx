@@ -33,7 +33,7 @@ const Destinations = () => {
     };
 
     return (
-        <div className="container py-5" style={{ minHeight: "100vh" }}>
+        <div className="container py-5">
             <div className="d-flex justify-content-between align-items-center mb-5">
                 <h2 className="fw-bold m-0" style={{ color: "#181E4B" }}>
                     {t("exploreDestinations")}

@@ -71,8 +71,8 @@ const FlightReview = () => {
   return (
     <div className="container py-1 d-flex justify-content-center">
       <div
-        className="card shadow-lg p-4"
-        style={{ maxWidth: "900px", width: "100%", borderRadius: "16px" }}
+        className="card shadow-lg p-4 responsive-card"
+        style={{ maxWidth: "900px", width: "100%" }}
       >
         <h4 className="fw-bold text-center mb-4">
           ✈️ Details of Flights

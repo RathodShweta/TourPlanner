@@ -7,7 +7,7 @@ const Profile = () => {
 
   const [user, setUser] = useState(null);
   const [bookings, setBookings] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
+  const [wishlistHotels, setWishlistHotels] = useState([]);
   const [activeTab, setActiveTab] = useState("profile");
   const [loading, setLoading] = useState(true);
 
@@ -23,15 +23,20 @@ const Profile = () => {
     const parsedUser = JSON.parse(storedUser);
     setUser(parsedUser);
 
-    // ✅ LOAD WISHLIST FROM localStorage
-    const allWishlist =
-      JSON.parse(localStorage.getItem("wishlist")) || [];
+    /* ================= LOAD WISHLIST ================= */
 
-    setWishlist(
-      allWishlist.filter((item) => item.userId === parsedUser.id)
+    const wishlistIds = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const allHotels = JSON.parse(localStorage.getItem("hotels")) || [];
+
+    // ✅ Match wishlist IDs with hotel objects
+    const matchedHotels = allHotels.filter((h) =>
+      wishlistIds.includes(h._id)
     );
 
-    // ✅ FETCH BOOKINGS
+    setWishlistHotels(matchedHotels);
+
+    /* ================= LOAD BOOKINGS ================= */
+
     fetch("http://localhost:5000/api/bookings/my", {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -43,17 +48,17 @@ const Profile = () => {
       .catch(() => setLoading(false));
   }, [token]);
 
-  // ✅ REMOVE FROM WISHLIST
+  /* ================= REMOVE FROM WISHLIST ================= */
+
   const removeFromWishlist = (hotelId) => {
-    const allWishlist =
-      JSON.parse(localStorage.getItem("wishlist")) || [];
+    const wishlistIds = JSON.parse(localStorage.getItem("wishlist")) || [];
 
-    const updated = allWishlist.filter(
-      (item) => !(item.id === hotelId && item.userId === user.id)
+    const updatedIds = wishlistIds.filter((id) => id !== hotelId);
+    localStorage.setItem("wishlist", JSON.stringify(updatedIds));
+
+    setWishlistHotels((prev) =>
+      prev.filter((hotel) => hotel._id !== hotelId)
     );
-
-    localStorage.setItem("wishlist", JSON.stringify(updated));
-    setWishlist(updated.filter((i) => i.userId === user.id));
   };
 
   if (loading) return <p className="center-text">Loading profile...</p>;
@@ -61,7 +66,7 @@ const Profile = () => {
 
   return (
     <>
-      {/* 🔹 TOP NAVBAR */}
+      {/* ================= NAV ================= */}
       <div className="profile-container">
         <div className="profile-nav">
           <button
@@ -76,8 +81,10 @@ const Profile = () => {
             onClick={() => setActiveTab("wishlist")}
           >
             ❤️ Wishlist
-            {wishlist.length > 0 && (
-              <span className="wishlist-badge">{wishlist.length}</span>
+            {wishlistHotels.length > 0 && (
+              <span className="wishlist-badge">
+                {wishlistHotels.length}
+              </span>
             )}
           </button>
 
@@ -120,23 +127,27 @@ const Profile = () => {
         </div>
       )}
 
-      {/* ================= WISHLIST TAB (FULL SCREEN) ================= */}
+      {/* ================= WISHLIST TAB ================= */}
       {activeTab === "wishlist" && (
         <div className="wishlist-fullscreen">
-          {wishlist.length === 0 ? (
+          {wishlistHotels.length === 0 ? (
             <p className="center-text">No hotels in wishlist</p>
           ) : (
             <div className="wishlist-grid-full">
-              {wishlist.map((hotel) => (
-                <div className="wishlist-card-full" key={hotel.id}>
-                  <img src={hotel.images[0]} alt={hotel.name} />
+              {wishlistHotels.map((hotel) => (
+                <div className="wishlist-card-full" key={hotel._id}>
+                  <img src={hotel.images?.[0]} alt={hotel.name} />
+
                   <div className="wishlist-body">
                     <h4>{hotel.name}</h4>
-                    <p className="location">{hotel.location}</p>
-                    <p className="price">{hotel.price}</p>
+                    <p className="location">📍 {hotel.location}</p>
+                    <p className="price">
+                      ₹{hotel.pricePerNight} / night
+                    </p>
+
                     <button
                       className="remove-btn"
-                      onClick={() => removeFromWishlist(hotel.id)}
+                      onClick={() => removeFromWishlist(hotel._id)}
                     >
                       REMOVE
                     </button>

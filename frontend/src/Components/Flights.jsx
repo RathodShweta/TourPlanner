@@ -31,36 +31,56 @@ const Flights = () => {
   ];
 
   return (
-    <div className="flights-dashboard">
-      {/* SIDEBAR: All Destinations List */}
-      <div className="dest-sidebar">
-        <div className="sidebar-header">
-          <Link to="/" className="text-decoration-none text-white">← Home</Link>
-          <h5 className="mt-2 fw-bold">Destinations</h5>
-        </div>
-        <div className="dest-list">
-          {destinations.map((dest, idx) => (
-            <div 
-              key={idx} 
-              className={`dest-item ${activeDest.name === dest.name ? "active" : ""}`}
-              onClick={() => setActiveDest(dest)}
+    <div className="flights-page-container">
+      {/* HEADER with Destination Selector */}
+      <div className="flights-header-section">
+        <div className="container">
+          <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h2 className="fw-bold mb-0">Flight Bookings</h2>
+            <Link to="/" className="btn btn-outline-dark">← Home</Link>
+          </div>
+          
+          {/* Destination Selector Dropdown */}
+          <div className="destination-selector-wrapper">
+            <label className="form-label fw-bold mb-2">Select Destination</label>
+            <select 
+              className="form-select destination-select"
+              value={activeDest.name}
+              onChange={(e) => {
+                const selected = destinations.find(d => d.name === e.target.value);
+                setActiveDest(selected);
+              }}
             >
-              <span className="dest-icon-small">{dest.icon}</span>
-              <div className="dest-info">
-                <div className="dest-name-small">{dest.name}</div>
-                <div className="dest-type-small">{dest.type}</div>
+              {destinations.map((dest, idx) => (
+                <option key={idx} value={dest.name}>
+                  {dest.icon} {dest.name} - {dest.type} ({dest.price})
+                </option>
+              ))}
+            </select>
+            
+            {/* Selected Destination Info Card */}
+            <div className="selected-dest-card mt-3">
+              <div className="d-flex align-items-center gap-3">
+                <span className="dest-icon-large">{activeDest.icon}</span>
+                <div className="flex-grow-1">
+                  <h4 className="mb-1 fw-bold">{activeDest.name}</h4>
+                  <p className="mb-0 text-muted small">{activeDest.type}</p>
+                </div>
+                <div className="text-end">
+                  <div className="h4 mb-0 fw-bold text-success">{activeDest.price}</div>
+                  <small className="text-muted">Starting Price</small>
+                </div>
               </div>
-              <div className="dest-price-tag">{dest.price}</div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
       {/* MAIN CONTENT: Flight Details */}
-      <div className="flight-main-content">
-        <div className="flight-header">
-          <h2>Flights to {activeDest.name} {activeDest.icon}</h2>
-          <p className="text-muted">Showing fastest and cheapest flights for your journey.</p>
+      <div className="flight-main-content container">
+        <div className="flight-results-header mb-4">
+          <h3 className="fw-bold">Available Flights</h3>
+          <p className="text-muted mb-0">Showing fastest and cheapest flights for your journey</p>
         </div>
 
         <div className="flight-results-grid">

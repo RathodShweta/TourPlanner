@@ -57,7 +57,7 @@ Total Amount: ₹${totalAmount}
     <div className="container py-1">
       <h2 className="text-center fw-bold mb-4">Payment Details</h2>
 
-      <div className="card p-4 shadow mx-auto" style={{ maxWidth: "500px" }}>
+      <div className="card p-4 shadow mx-auto responsive-card">
 
         {/* USER DETAILS */}
         <h5 className="fw-bold mb-2">👤 User Details</h5>

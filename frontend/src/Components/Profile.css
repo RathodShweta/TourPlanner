@@ -12,27 +12,44 @@
 
 .profile-nav button {
   position: relative;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  background: #f0f0f0;
+  border: 2px solid transparent;
+  padding: 10px 20px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #f8f9fc 0%, #eef1f8 100%);
   cursor: pointer;
   font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.profile-nav button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .profile-nav button.active {
-  background: #181e4b;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
 }
 
 .profile-card {
-  background: #f5f7ff;
+  background: linear-gradient(135deg, rgba(245, 247, 255, 0.95) 0%, rgba(238, 241, 248, 0.95) 100%);
   width: 105%;
   max-width: 110%;  
-  padding: 18px 40px;
-  border-radius: 16px;
+  padding: 24px 40px;
+  border-radius: 24px;
   text-align: center;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(102, 126, 234, 0.18);
 }
 
 .profile-img {
@@ -96,11 +113,26 @@
 
 /* 🔹 CARD */
 .wishlist-card-full {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.wishlist-card-full:hover {
+  transform: translateY(-8px) rotate(1deg);
+  box-shadow: 0 16px 48px rgba(102, 126, 234, 0.15);
+}
+
+.wishlist-card-full img {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wishlist-card-full:hover img {
+  transform: scale(1.1);
 }
 .wishlist-fullscreen {
   width: 100%;
@@ -132,13 +164,27 @@
 /* 🔹 REMOVE BUTTON */
 .remove-btn {
   width: 100%;
-  background: #ff3f6c;
+  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
   color: white;
   border: none;
-  padding: 10px;
-  border-radius: 6px;
-  font-weight: bold;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 700;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(235, 51, 73, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+}
+
+.remove-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(235, 51, 73, 0.4);
+}
+
+.remove-btn:active {
+  transform: translateY(0);
 }
 
 /* 🔹 MOBILE */

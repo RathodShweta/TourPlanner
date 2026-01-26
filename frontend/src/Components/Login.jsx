@@ -53,7 +53,7 @@ const Login = () => {
         ← {t("backHome")}
       </Link>
 
-      <div className="card p-4 shadow-sm" style={{ width: "400px", borderRadius: "15px" }}>
+      <div className="card p-4 shadow-sm responsive-card">
         <h2 className="text-center mb-4 fw-bold" style={{ color: "#181E4B" }}>
           {t("loginTitle")}
         </h2>

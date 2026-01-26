@@ -197,7 +197,7 @@ const pageStyle = {
 
 const cardStyle = {
     width: "100%",
-    maxWidth: "420px",
+    maxWidth: "min(420px, 95vw)",
     background: "#ffffff",
     borderRadius: "16px",
     padding: "20px",

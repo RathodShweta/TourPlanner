@@ -49,7 +49,6 @@ const Signup = () => {
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100 position-relative">
-      
       <Link
         to="/"
         className="position-absolute top-0 start-0 m-4 text-decoration-none fw-bold"
@@ -58,7 +57,7 @@ const Signup = () => {
         ← {t("backHome")}
       </Link>
 
-      <div className="card p-4 shadow-sm" style={{ width: "450px", borderRadius: "15px" }}>
+      <div className="card p-4 shadow-sm responsive-card">
         <h2 className="text-center mb-4 fw-bold" style={{ color: "#181E4B" }}>
           {t("join")}
         </h2>
