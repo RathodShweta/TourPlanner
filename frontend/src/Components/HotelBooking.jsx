@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 /* ===== Lucide SVG Icons ===== */
 
@@ -27,6 +28,7 @@ const ShareIcon = () => (
 
 const HotelBooking = () => {
   const [bookings, setBookings] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -50,47 +52,24 @@ const HotelBooking = () => {
           body { font-family: Arial; padding: 5vw; }
           .receipt {
             max-width: 98vw;
-            width: 100%;
             margin: auto;
             border: 1px solid #ccc;
             padding: 4vw 3vw;
-            box-sizing: border-box;
             border-radius: 12px;
           }
           h2 { text-align: center; }
-          .row {
-            display: flex;
-            justify-content: space-between;
-            margin: 6px 0;
-          }
-          .total {
-            border-top: 1px dashed #000;
-            margin-top: 10px;
-            padding-top: 10px;
-            font-weight: bold;
-          }
-          .footer {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 12px;
-          }
-          @media (max-width: 576px) {
-            .receipt {
-              padding: 3vw 2vw;
-              border-radius: 8px;
-            }
-          }
+          .row { display: flex; justify-content: space-between; margin: 6px 0; }
+          .total { border-top: 1px dashed #000; margin-top: 10px; padding-top: 10px; font-weight: bold; }
+          .footer { text-align: center; margin-top: 15px; font-size: 12px; }
         </style>
       </head>
 
       <body>
         <div class="receipt">
           <h2>🏨 Hotel Booking Receipt</h2>
-
           <div class="row"><span>Customer</span><span>${b.user?.name || "Guest User"}</span></div>
           <div class="row"><span>Hotel</span><span>${b.hotel?.name}</span></div>
           <div class="row"><span>Travel Date</span><span>${b.travelDate}</span></div>
-          <div class="row"><span>Seats</span><span>${b.seats.join(", ")}</span></div>
           <div class="row"><span>Status</span><span>${b.status}</span></div>
 
           <div class="row"><span>Base Amount</span><span>₹${b.totalAmount}</span></div>
@@ -102,7 +81,7 @@ const HotelBooking = () => {
           </div>
 
           <div class="footer">
-            Thank you for booking with us 💙 <br/>
+            Thank you for booking with us 💙<br/>
             This is a system generated receipt.
           </div>
         </div>
@@ -143,7 +122,18 @@ Status: ${b.status}
 
   return (
     <div className="container py-4">
-      <h3 className="fw-bold mb-3">🏨 Booking History</h3>
+
+      {/* ===== HEADER WITH HOME BUTTON ===== */}
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h3 className="fw-bold">🏨 Booking History</h3>
+
+        <button
+          className="btn btn-outline-secondary"
+          onClick={() => navigate("/")}
+        >
+          Home
+        </button>
+      </div>
 
       <table className="table table-bordered text-center">
         <thead className="table-dark">

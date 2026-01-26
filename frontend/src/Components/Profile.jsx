@@ -162,12 +162,32 @@ const Profile = () => {
       {/* ================= BOOKINGS TAB ================= */}
       {activeTab === "bookings" && (
         <div className="profile-container profile-section">
-          <h3>📘 Booking History</h3>
+          <h3>📘 My Bookings</h3>
 
+          {/* ===== Booking Actions ===== */}
+          <div className="booking-actions">
+            <button
+              className="booking-btn"
+              onClick={() => navigate("/FlightBooking")}
+            >
+              ✈️ Flight Booking
+            </button>
+
+            <button
+              className="booking-btn"
+              onClick={() => navigate("/HotelBooking")}
+            >
+              🏨 Hotel Booking
+            </button>
+
+           
+          </div>
+
+          {/* ===== Booking History ===== */}
           {bookings.length === 0 ? (
-            <p>No bookings found</p>
+            <p className="center-text mt-3">No bookings found</p>
           ) : (
-            <table>
+            <table className="booking-table">
               <thead>
                 <tr>
                   <th>Type</th>
@@ -196,6 +216,7 @@ const Profile = () => {
           )}
         </div>
       )}
+
     </>
   );
 };

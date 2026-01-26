@@ -53,37 +53,6 @@ const Navbar = () => {
         <li>
           <Link to="/tourbot" className="tourbot-btn" onClick={() => setMenuOpen(false)}>🤖 TourBot</Link>
         </li>
-
-        {/* 📘 Booking (ONLY AFTER LOGIN) */}
-        {user && (
-          <li className="dropdown">
-            <button
-              className="btn dropdown-toggle booking-btn"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              📘 Booking
-            </button>
-            <ul className="dropdown-menu">
-              <li>
-                <Link className="dropdown-item" to="/FlightBooking" onClick={() => setMenuOpen(false)}>
-                  ✈️ Flight Booking
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="/HotelBooking" onClick={() => setMenuOpen(false)}>
-                  🏨 Hotel Booking
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="/DestinationBooking" onClick={() => setMenuOpen(false)}>
-                  📍 Destinations Booking
-                </Link>
-              </li>
-            </ul>
-          </li>
-        )}
         
         {/* Mobile-only nav actions */}
         <li className="nav-actions-mobile">

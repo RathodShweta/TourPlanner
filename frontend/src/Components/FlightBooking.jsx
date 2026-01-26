@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const STORAGE_KEY = "FlightBooking";
 
 const FlightBooking = () => {
   const [bookings, setBookings] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const data =
@@ -13,7 +15,18 @@ const FlightBooking = () => {
 
   return (
     <div className="container py-4">
-      <h3 className="fw-bold mb-3">✈️ Flight Booking History</h3>
+
+      {/* ===== HEADER WITH HOME BUTTON ===== */}
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h3 className="fw-bold">✈️ Flight Booking History</h3>
+
+        <button
+          className="btn btn-outline-secondary"
+          onClick={() => navigate("/")}
+        >
+           Home
+        </button>
+      </div>
 
       {bookings.length === 0 ? (
         <p>No flight bookings found</p>
