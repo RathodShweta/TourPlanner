@@ -1,111 +1,159 @@
-import React, { useState } from "react";
+import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const Paymntdetaildesti = () => {
+const PaymentDetailDesti = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
 
   const place = state?.place;
-  const user = JSON.parse(localStorage.getItem("user")); // ✅ USER DATA
-
-  const [travelDate, setTravelDate] = useState("");
-  const [days, setDays] = useState(1);
-
   if (!place) {
-    return <h3 className="text-center mt-5">No destination selected</h3>;
+    return <p className="text-center mt-5">No destination selected</p>;
   }
 
-  const basePrice =
-    Number(String(place.price).replace(/[^0-9]/g, "")) || 0;
-
-  const totalAmount = basePrice * days;
-  const today = new Date().toISOString().split("T")[0];
-
-  const handleConfirm = () => {
-    if (!travelDate) {
-      alert("Please select travel date");
-      return;
-    }
-
-    const ok = window.confirm(
-      `Confirm Booking 👇
-
-Name: ${user?.name || "Guest"}
-Email: ${user?.email || "Not available"}
-
-Destination: ${place.name}
-Date: ${travelDate}
-Days: ${days}
-Total Amount: ₹${totalAmount}
-`
-    );
-
-    if (ok) {
-      navigate("/Paymentdesti", {
-        state: {
-          place,
-          travelDate,
-          days,
-          totalAmount,
-          user
-        }
-      });
-    }
-  };
-
   return (
-    <div className="container py-1">
-      <h2 className="text-center fw-bold mb-4">Payment Details</h2>
+    <div className="container py-5">
 
-      <div className="card p-4 shadow mx-auto responsive-card">
-
-        {/* USER DETAILS */}
-        <h5 className="fw-bold mb-2">👤 User Details</h5>
-        <p><strong>Name:</strong> {user?.name || "Guest"}</p>
-        <p><strong>Email:</strong> {user?.email || "Not available"}</p>
-
-        <hr />
-
-        {/* TRIP DETAILS */}
-        <h5 className="fw-bold mb-2">📍 Trip Details</h5>
-        <p><strong>Destination:</strong> {place.name}</p>
-        <p><strong>Price per day:</strong> ₹{basePrice}</p>
-
-        <label className="fw-bold mt-2">Travel Date</label>
-        <input
-          type="date"
-          className="form-control mb-3"
-          min={today}
-          value={travelDate}
-          onChange={(e) => setTravelDate(e.target.value)}
-        />
-
-        <label className="fw-bold">Number of Days</label>
-        <select
-          className="form-select mb-3"
-          value={days}
-          onChange={(e) => setDays(Number(e.target.value))}
-        >
-          {[...Array(10)].map((_, i) => (
-            <option key={i + 1} value={i + 1}>
-              {i + 1} Day{i + 1 > 1 ? "s" : ""}
-            </option>
+      {/* ================= IMAGE GALLERY (3–5 Images) ================= */}
+      <div
+        id="destinationCarousel"
+        className="carousel slide mb-4 shadow rounded"
+        data-bs-ride="carousel"
+      >
+        <div className="carousel-inner">
+          {place.images.map((img, index) => (
+            <div
+              key={index}
+              className={`carousel-item ${index === 0 ? "active" : ""}`}
+            >
+              <img
+                src={img}
+                alt={`${place.name} ${index + 1}`}
+                className="d-block w-100"
+                style={{ height: "380px", objectFit: "cover" }}
+              />
+            </div>
           ))}
-        </select>
+        </div>
 
-        <h5 className="text-success text-center">
-          Total Amount: ₹{totalAmount}
-        </h5>
-
+        {/* Controls */}
         <button
-          className="btn btn-success w-100 mt-3 fw-bold"
-          onClick={handleConfirm}
+          className="carousel-control-prev"
+          type="button"
+          data-bs-target="#destinationCarousel"
+          data-bs-slide="prev"
         >
-          Confirm & Pay
+          <span className="carousel-control-prev-icon"></span>
+        </button>
+        <button
+          className="carousel-control-next"
+          type="button"
+          data-bs-target="#destinationCarousel"
+          data-bs-slide="next"
+        >
+          <span className="carousel-control-next-icon"></span>
         </button>
       </div>
+
+      {/* ================= DESTINATION HEADER ================= */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 className="fw-bold mb-1">{place.name}</h2>
+          <p className="text-muted mb-0">📍 {place.state}</p>
+        </div>
+        <div className="text-end">
+          <h5 className="text-warning mb-1">{place.price}</h5>
+          <small>⭐ {place.rating} / 5</small>
+        </div>
+      </div>
+
+      {/* ================= QUICK INFO ================= */}
+      <div className="row mb-4">
+        <div className="col-md-4">
+          <div className="border rounded p-3 h-100">
+            <b>Best Time</b>
+            <p className="text-muted mb-0">{place.bestTime}</p>
+          </div>
+        </div>
+        <div className="col-md-4">
+          <div className="border rounded p-3 h-100">
+            <b>Season</b>
+            <p className="text-muted mb-0">{place.season}</p>
+          </div>
+        </div>
+        <div className="col-md-4">
+          <div className="border rounded p-3 h-100">
+            <b>Starting Budget</b>
+            <p className="text-muted mb-0">{place.price}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ================= ABOUT ================= */}
+      <div className="mb-4">
+        <h4 className="fw-bold">📖 About {place.name}</h4>
+        <p className="text-muted">{place.desc}</p>
+      </div>
+
+      {/* ================= FAMOUS PLACES ================= */}
+      <div className="mb-4">
+        <h4 className="fw-bold">📍 Famous Places to Visit</h4>
+        <ul className="list-group list-group-flush">
+          {place.famousPlaces.map((p, i) => (
+            <li key={i} className="list-group-item">✔ {p}</li>
+          ))}
+        </ul>
+      </div>
+
+      {/* ================= LOCAL FOOD ================= */}
+      <div className="mb-4">
+        <h4 className="fw-bold">🍽️ Local Food</h4>
+        <ul className="list-group list-group-flush">
+          {place.food.map((f, i) => (
+            <li key={i} className="list-group-item">🍴 {f}</li>
+          ))}
+        </ul>
+      </div>
+
+      {/* ================= HOTELS ================= */}
+      <div className="mb-4">
+        <h4 className="fw-bold">🏨 Hotels Available</h4>
+        <ul className="list-group list-group-flush">
+          {place.hotels.map((h, i) => (
+            <li key={i} className="list-group-item">🏨 {h}</li>
+          ))}
+        </ul>
+      </div>
+
+      {/* ================= TRANSPORT ================= */}
+      <div className="mb-5">
+        <h4 className="fw-bold">🚕 Transport Options</h4>
+        <ul className="list-group list-group-flush">
+          {place.transport.map((t, i) => (
+            <li key={i} className="list-group-item">🚗 {t}</li>
+          ))}
+        </ul>
+      </div>
+
+      {/* ================= ACTION BAR ================= */}
+      <div className="card shadow-sm">
+        <div className="card-body d-flex justify-content-between align-items-center">
+          <h5 className="mb-0">Ready to book your trip to {place.name}?</h5>
+          <div>
+            <button
+              className="btn btn-outline-secondary me-2"
+              onClick={() => navigate(-1)}
+            >
+              ⬅ Back
+            </button>
+            <button className="btn btn-warning fw-bold">
+              Proceed to Payment
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 };
 
-export default Paymntdetaildesti;
+export default PaymentDetailDesti;
