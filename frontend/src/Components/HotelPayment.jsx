@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-
-const STORAGE_KEY = "HotelBooking";
 
 const Hotelpayment = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const hasStarted = useRef(false);
 
   const {
     hotel,
@@ -20,22 +19,21 @@ const Hotelpayment = () => {
   const [status, setStatus] = useState("pending");
   const [txnId, setTxnId] = useState("");
 
-  const startPayment = () => {
-    setStatus("pending");
-    setTxnId("");
+  useEffect(() => {
+    // ✅ Prevent double execution in React 18 StrictMode
+    if (hasStarted.current) return;
+    hasStarted.current = true;
 
     setTimeout(async () => {
       const transactionId = "TXN" + Date.now();
 
-      // ✅ AUTO SUCCESS
       setTxnId(transactionId);
       setStatus("success");
 
       try {
-        // ✅ SAVE BOOKING IN BACKEND
         await axios.post("http://localhost:5000/api/hotel-bookings", {
           hotelId: hotel._id,
-          userId: user.id, // ✅ FIXED
+          userId: user.id,
           travelDate,
           nights,
           seats: selectedSeats,
@@ -46,10 +44,7 @@ const Hotelpayment = () => {
         console.error("Booking save failed", err);
       }
     }, 5000);
-  };
-
-  useEffect(() => {
-    startPayment();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -116,9 +116,33 @@ const getAllHotelBookings = async (req, res) => {
   }
 };
 
-/* ✅ EXPORT AT END (CommonJS) */
+/**
+ * GET MY BOOKINGS (for logged-in user)
+ */
+const getMyBookings = async (req, res) => {
+  try {
+    const bookings = await HotelBooking.find({ user: req.user.id })
+      .populate("hotel", "name location images pricePerNight")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: bookings.length,
+      data: bookings,
+    });
+  } catch (error) {
+    console.error("Fetch my bookings error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch your bookings",
+    });
+  }
+};
+
+
 module.exports = {
   createHotelBooking,
   getBookedSeats,
   getAllHotelBookings,
+  getMyBookings,
 };

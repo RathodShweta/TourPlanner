@@ -20,17 +20,21 @@ const Profile = () => {
       setUser(JSON.parse(storedUser));
     }
 
-    fetch("http://localhost:5000/api/bookings/my", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setBookings(data || []);
-        setLoading(false);
+    if (token) {
+      fetch("http://localhost:5000/api/hotel-bookings/my", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .catch(() => setLoading(false));
+        .then((res) => res.json())
+        .then((data) => {
+          setBookings(data.data || []);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
   }, [token]);
 
   if (!user) {
@@ -72,11 +76,7 @@ const Profile = () => {
       {activeTab === "profile" && (
         <div className="profile-card">
           <img
-            src={
-              user.photo
-                ? `http://localhost:5000/uploads/${user.photo}`
-                : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-            }
+            src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
             alt="Profile"
             className="profile-img"
           />
@@ -119,34 +119,55 @@ const Profile = () => {
           <h3>📘 Booking History</h3>
 
           {bookings.length === 0 ? (
-            <p>No bookings found</p>
+            <div className="no-bookings">
+              <p>🏨 No bookings found</p>
+              <button
+                className="btn btn-primary"
+                onClick={() => navigate("/hotels")}
+              >
+                Browse Hotels
+              </button>
+            </div>
           ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Name</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map((b) => (
-                  <tr key={b._id}>
-                    <td>{b.type}</td>
-                    <td>{b.name}</td>
-                    <td
-                      className={
-                        b.status === "Confirmed"
-                          ? "status-confirmed"
-                          : "status-cancelled"
-                      }
-                    >
+            <div className="booking-cards">
+              {bookings.map((b) => (
+                <div className="booking-card" key={b._id}>
+                  <div className="booking-card-header">
+                    <h5>🏨 {b.hotel?.name || "Hotel"}</h5>
+                    <span className={`booking-status status-${b.status}`}>
                       {b.status}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </span>
+                  </div>
+
+                  <div className="booking-card-body">
+                    <div className="booking-detail">
+                      <span className="booking-label">📍 Location</span>
+                      <span>{b.hotel?.location || "—"}</span>
+                    </div>
+                    <div className="booking-detail">
+                      <span className="booking-label">📅 Travel Date</span>
+                      <span>{b.travelDate}</span>
+                    </div>
+                    <div className="booking-detail">
+                      <span className="booking-label">🌙 Nights</span>
+                      <span>{b.nights}</span>
+                    </div>
+                    <div className="booking-detail">
+                      <span className="booking-label">🪑 Rooms</span>
+                      <span>{b.seats?.join(", ")}</span>
+                    </div>
+                    <div className="booking-detail">
+                      <span className="booking-label">💰 Amount</span>
+                      <span className="booking-amount">₹{b.totalAmount}</span>
+                    </div>
+                    <div className="booking-detail">
+                      <span className="booking-label">🧾 Txn ID</span>
+                      <span className="booking-txn">{b.transactionId}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
