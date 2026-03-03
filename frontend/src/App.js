@@ -11,7 +11,6 @@ import TourBot from "./Components/TourBot";
 import Login from "./Components/Login";
 import Signup from "./Components/Signup";
 
-import Payment from "./Components/Paymentdesti";
 import Paymntdetaildesti from "./Components/paymntdetaildesti";
 import Paymentdesti from "./Components/Paymentdesti";
 
@@ -49,7 +48,6 @@ function App() {
 
           <Route path="/Paymntdetaildesti" element={<Paymntdetaildesti />} />
           <Route path="/Paymentdesti" element={<Paymentdesti />} />
-          <Route path="/payment" element={<Payment />} />
 
           <Route path="/DestinationBooking" element={<DestinationBooking />} />
           <Route path="/HotelBooking" element={<HotelBooking />} />

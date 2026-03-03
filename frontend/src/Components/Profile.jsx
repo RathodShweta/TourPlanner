@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Profile.css";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   const [user, setUser] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [wishlistHotels, setWishlistHotels] = useState([]);
   const [activeTab, setActiveTab] = useState("profile");
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -27,7 +29,6 @@ const Profile = () => {
     const wishlistIds = JSON.parse(localStorage.getItem("wishlist")) || [];
     const allHotels = JSON.parse(localStorage.getItem("hotels")) || [];
 
-    // ✅ Match wishlist IDs with hotel objects
     const matchedHotels = allHotels.filter((h) =>
       wishlistIds.includes(h._id)
     );
@@ -50,6 +51,41 @@ const Profile = () => {
       setLoading(false);
     }
   }, [token]);
+
+  /* ================= UPLOAD PROFILE PHOTO ================= */
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("photo", file);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/users/upload-photo", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        const updatedUser = { ...user, photo: data.user.photo };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      } else {
+        alert(data.message || "Failed to upload photo");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Failed to upload photo. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   /* ================= REMOVE FROM WISHLIST ================= */
   const removeFromWishlist = (hotelId) => {
@@ -96,15 +132,35 @@ const Profile = () => {
       {/* 👤 PROFILE TAB */}
       {activeTab === "profile" && (
         <div className="profile-card">
-          <img
-            src={
-              user.photo
-                ? `http://localhost:5000/uploads/${user.photo}`
-                : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-            }
-            alt="Profile"
-            className="profile-img"
-          />
+          {/* Profile Photo with Upload Overlay */}
+          <div
+            className="profile-img-wrapper"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <img
+              src={
+                user.photo
+                  ? `http://localhost:5000/profile_photos/${user.photo}`
+                  : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+              }
+              alt="Profile"
+              className="profile-img"
+            />
+            <div className="photo-upload-overlay">
+              {uploading ? (
+                <span className="upload-spinner">⏳</span>
+              ) : (
+                <span className="camera-icon">📷</span>
+              )}
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handlePhotoUpload}
+              accept="image/*"
+              style={{ display: "none" }}
+            />
+          </div>
 
           <h2>{user.name}</h2>
           <p>📧 {user.email}</p>

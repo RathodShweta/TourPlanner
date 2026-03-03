@@ -32,7 +32,8 @@ exports.updateProfile = async (req, res) => {
         id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
-        phone: updatedUser.phone
+        phone: updatedUser.phone,
+        photo: updatedUser.photo
       }
     });
   } catch (error) {
@@ -54,9 +55,43 @@ exports.getProfile = async (req, res) => {
       id: user._id,
       name: user.name,
       email: user.email,
-      phone: user.phone
+      phone: user.phone,
+      photo: user.photo
     });
   } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+/* ================= UPLOAD PROFILE PHOTO ================= */
+exports.uploadProfilePhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { photo: req.file.filename },
+      { new: true }
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      message: "Profile photo updated successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        photo: user.photo
+      }
+    });
+  } catch (error) {
+    console.error("Upload photo error:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };

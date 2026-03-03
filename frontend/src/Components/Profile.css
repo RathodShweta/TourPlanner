@@ -60,38 +60,53 @@
   object-fit: cover;
 }
 
-
-
-/* Profile navbar */
-.profile-nav {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.profile-nav button {
+/* 🔹 PROFILE PHOTO UPLOAD */
+.profile-img-wrapper {
   position: relative;
-  border: 2px solid transparent;
-  padding: 10px 20px;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #f8f9fc 0%, #eef1f8 100%);
+  display: inline-block;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 10px;
 }
 
-.profile-nav button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  background: #dde0ea;
+.photo-upload-overlay {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  top: 0;
 }
 
-.profile-nav button.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
-  transform: translateY(-2px);
+.profile-img-wrapper:hover .photo-upload-overlay {
+  opacity: 1;
+}
+
+.camera-icon {
+  font-size: 2rem;
+  filter: brightness(2);
+}
+
+.upload-spinner {
+  font-size: 1.5rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* 🔹 WISHLIST COUNT BADGE */
@@ -336,6 +351,4 @@
   .profile-nav {
     flex-wrap: wrap;
   }
-}
-
 }
