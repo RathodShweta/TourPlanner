@@ -24,7 +24,6 @@ const Profile = () => {
     setUser(parsedUser);
 
     /* ================= LOAD WISHLIST ================= */
-
     const wishlistIds = JSON.parse(localStorage.getItem("wishlist")) || [];
     const allHotels = JSON.parse(localStorage.getItem("hotels")) || [];
 
@@ -32,30 +31,31 @@ const Profile = () => {
     const matchedHotels = allHotels.filter((h) =>
       wishlistIds.includes(h._id)
     );
-
     setWishlistHotels(matchedHotels);
 
     /* ================= LOAD BOOKINGS ================= */
-
-    fetch("http://localhost:5000/api/bookings/my", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setBookings(data || []);
-        setLoading(false);
+    if (token) {
+      fetch("http://localhost:5000/api/hotel-bookings/my", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .catch(() => setLoading(false));
+        .then((res) => res.json())
+        .then((data) => {
+          setBookings(data.data || []);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
   }, [token]);
 
   /* ================= REMOVE FROM WISHLIST ================= */
-
   const removeFromWishlist = (hotelId) => {
     const wishlistIds = JSON.parse(localStorage.getItem("wishlist")) || [];
-
     const updatedIds = wishlistIds.filter((id) => id !== hotelId);
     localStorage.setItem("wishlist", JSON.stringify(updatedIds));
-
     setWishlistHotels((prev) =>
       prev.filter((hotel) => hotel._id !== hotelId)
     );
@@ -65,69 +65,63 @@ const Profile = () => {
   if (!user) return <p className="center-text">Please login</p>;
 
   return (
-    <>
-      {/* ================= NAV ================= */}
-      <div className="profile-container">
-        <div className="profile-nav">
-          <button
-            className={activeTab === "profile" ? "active" : ""}
-            onClick={() => setActiveTab("profile")}
-          >
-            👤 Profile
-          </button>
+    <div className="profile-container">
+      {/* 🔹 PROFILE NAVBAR */}
+      <div className="profile-nav">
+        <button
+          className={activeTab === "profile" ? "active" : ""}
+          onClick={() => setActiveTab("profile")}
+        >
+          👤 Profile
+        </button>
 
-          <button
-            className={activeTab === "wishlist" ? "active" : ""}
-            onClick={() => setActiveTab("wishlist")}
-          >
-            ❤️ Wishlist
-            {wishlistHotels.length > 0 && (
-              <span className="wishlist-badge">
-                {wishlistHotels.length}
-              </span>
-            )}
-          </button>
+        <button
+          className={activeTab === "wishlist" ? "active" : ""}
+          onClick={() => setActiveTab("wishlist")}
+        >
+          ❤️ Wishlist
+          {wishlistHotels.length > 0 && (
+            <span className="wishlist-badge">{wishlistHotels.length}</span>
+          )}
+        </button>
 
-          <button
-            className={activeTab === "bookings" ? "active" : ""}
-            onClick={() => setActiveTab("bookings")}
-          >
-            📘 Bookings
-          </button>
-        </div>
+        <button
+          className={activeTab === "bookings" ? "active" : ""}
+          onClick={() => setActiveTab("bookings")}
+        >
+          📘 Bookings
+        </button>
       </div>
 
-      {/* ================= PROFILE TAB ================= */}
+      {/* 👤 PROFILE TAB */}
       {activeTab === "profile" && (
-        <div className="profile-container">
-          <div className="profile-card">
-            <img
-              src={
-                user.photo
-                  ? `http://localhost:5000/uploads/${user.photo}`
-                  : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-              }
-              alt="Profile"
-              className="profile-img"
-            />
+        <div className="profile-card">
+          <img
+            src={
+              user.photo
+                ? `http://localhost:5000/uploads/${user.photo}`
+                : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+            }
+            alt="Profile"
+            className="profile-img"
+          />
 
-            <h2>{user.name}</h2>
-            <p>📧 {user.email}</p>
-            <p>📞 {user.phone || "Not added"}</p>
+          <h2>{user.name}</h2>
+          <p>📧 {user.email}</p>
+          <p>📞 {user.phone || "Not added"}</p>
 
-            <h4>Total Trips Planned: {bookings.length}</h4>
+          <h4>Total Trips Planned: {bookings.length}</h4>
 
-            <button
-              className="btn btn-primary mt-3"
-              onClick={() => navigate("/EditProfile")}
-            >
-              ✏️ Edit Profile
-            </button>
-          </div>
+          <button
+            className="btn btn-primary mt-3"
+            onClick={() => navigate("/EditProfile")}
+          >
+            ✏️ Edit Profile
+          </button>
         </div>
       )}
 
-      {/* ================= WISHLIST TAB ================= */}
+      {/* ❤️ WISHLIST TAB */}
       {activeTab === "wishlist" && (
         <div className="wishlist-fullscreen">
           {wishlistHotels.length === 0 ? (
@@ -137,14 +131,10 @@ const Profile = () => {
               {wishlistHotels.map((hotel) => (
                 <div className="wishlist-card-full" key={hotel._id}>
                   <img src={hotel.images?.[0]} alt={hotel.name} />
-
                   <div className="wishlist-body">
                     <h4>{hotel.name}</h4>
                     <p className="location">📍 {hotel.location}</p>
-                    <p className="price">
-                      ₹{hotel.pricePerNight} / night
-                    </p>
-
+                    <p className="price">₹{hotel.pricePerNight} / night</p>
                     <button
                       className="remove-btn"
                       onClick={() => removeFromWishlist(hotel._id)}
@@ -159,12 +149,11 @@ const Profile = () => {
         </div>
       )}
 
-      {/* ================= BOOKINGS TAB ================= */}
+      {/* 📘 BOOKINGS TAB */}
       {activeTab === "bookings" && (
-        <div className="profile-container profile-section">
+        <div className="profile-section">
           <h3>📘 My Bookings</h3>
 
-          {/* ===== Booking Actions ===== */}
           <div className="booking-actions">
             <button
               className="booking-btn"
@@ -172,52 +161,68 @@ const Profile = () => {
             >
               ✈️ Flight Booking
             </button>
-
             <button
               className="booking-btn"
               onClick={() => navigate("/HotelBooking")}
             >
               🏨 Hotel Booking
             </button>
-
-           
           </div>
 
-          {/* ===== Booking History ===== */}
           {bookings.length === 0 ? (
-            <p className="center-text mt-3">No bookings found</p>
+            <div className="no-bookings">
+              <p>🏨 No bookings found</p>
+              <button
+                className="btn btn-primary"
+                onClick={() => navigate("/hotels")}
+              >
+                Browse Hotels
+              </button>
+            </div>
           ) : (
-            <table className="booking-table">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Name</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map((b) => (
-                  <tr key={b._id}>
-                    <td>{b.type}</td>
-                    <td>{b.name}</td>
-                    <td
-                      className={
-                        b.status === "Confirmed"
-                          ? "status-confirmed"
-                          : "status-cancelled"
-                      }
-                    >
+            <div className="booking-cards">
+              {bookings.map((b) => (
+                <div className="booking-card" key={b._id}>
+                  <div className="booking-card-header">
+                    <h5>🏨 {b.hotel?.name || "Hotel"}</h5>
+                    <span className={`booking-status status-${b.status}`}>
                       {b.status}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </span>
+                  </div>
+
+                  <div className="booking-card-body">
+                    <div className="booking-detail">
+                      <span className="booking-label">📍 Location</span>
+                      <span>{b.hotel?.location || "—"}</span>
+                    </div>
+                    <div className="booking-detail">
+                      <span className="booking-label">📅 Travel Date</span>
+                      <span>{b.travelDate}</span>
+                    </div>
+                    <div className="booking-detail">
+                      <span className="booking-label">🌙 Nights</span>
+                      <span>{b.nights}</span>
+                    </div>
+                    <div className="booking-detail">
+                      <span className="booking-label">🪑 Rooms</span>
+                      <span>{b.seats?.join(", ")}</span>
+                    </div>
+                    <div className="booking-detail">
+                      <span className="booking-label">💰 Amount</span>
+                      <span className="booking-amount">₹{b.totalAmount}</span>
+                    </div>
+                    <div className="booking-detail">
+                      <span className="booking-label">🧾 Txn ID</span>
+                      <span className="booking-txn">{b.transactionId}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
-
-    </>
+    </div>
   );
 };
 

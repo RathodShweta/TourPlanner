@@ -8,8 +8,6 @@ const EditProfile = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [photo, setPhoto] = useState(null);
-  const [preview, setPreview] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,21 +23,7 @@ const EditProfile = () => {
     setName(storedUser.name || "");
     setEmail(storedUser.email || "");
     setPhone(storedUser.phone || "");
-
-    if (storedUser.photo) {
-      setPreview(`http://localhost:5000/uploads/${storedUser.photo}`);
-    }
   }, [navigate]);
-
-  // 🔹 Handle image preview
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    setPhoto(file);
-
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-    }
-  };
 
   // 🔹 Submit updated profile
   const handleSubmit = async (e) => {
@@ -47,21 +31,16 @@ const EditProfile = () => {
     setLoading(true);
     setError("");
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("email", email);
-    formData.append("phone", phone);
-    if (photo) formData.append("photo", photo);
-
     try {
       const res = await fetch(
         "http://localhost:5000/api/users/update-profile",
         {
           method: "PUT",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: formData,
+          body: JSON.stringify({ name, email, phone }),
         }
       );
 
@@ -97,22 +76,9 @@ const EditProfile = () => {
         {/* Profile Image */}
         <div className="text-center mb-3">
           <img
-            src={
-              preview ||
-              "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-            }
+            src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
             alt="Profile"
             className="edit-profile-img"
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Profile Photo</label>
-          <input
-            type="file"
-            className="form-control"
-            accept="image/*"
-            onChange={handlePhotoChange}
           />
         </div>
 
@@ -148,6 +114,7 @@ const EditProfile = () => {
             className="form-control"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            placeholder="Enter phone number"
           />
         </div>
 

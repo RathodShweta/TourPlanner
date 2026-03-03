@@ -17,6 +17,7 @@ app.use(express.json());
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/hotels", require("./routes/hotelRoutes"));
 app.use("/api/hotel-bookings", require("./routes/hotelBookingRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
 
 app.get("/", (req, res) => {
   res.send("Backend running with MVC structure 🚀");

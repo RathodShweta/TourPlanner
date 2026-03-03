@@ -37,7 +37,7 @@
 .profile-card {
   background: linear-gradient(135deg, rgba(245, 247, 255, 0.95) 0%, rgba(238, 241, 248, 0.95) 100%);
   width: 105%;
-  max-width: 110%;  
+  max-width: 110%;
   padding: 24px 40px;
   border-radius: 24px;
   text-align: center;
@@ -62,14 +62,7 @@
 
 
 
-/* keep your existing styles */
-/* 🔹 FULL SCREEN CONTAINER */
-.profile-container-full {
-  width: 100%;
-  padding: 20px;
-}
-
-/* 🔹 NAV */
+/* Profile navbar */
 .profile-nav {
   display: flex;
   gap: 15px;
@@ -78,17 +71,27 @@
 
 .profile-nav button {
   position: relative;
-  padding: 10px 18px;
-  border: none;
-  background: #f5f5f5;
-  border-radius: 6px;
+  border: 2px solid transparent;
+  padding: 10px 20px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #f8f9fc 0%, #eef1f8 100%);
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.profile-nav .active {
-  background: #2874f0;
+.profile-nav button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: #dde0ea;
+}
+
+.profile-nav button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
 }
 
 /* 🔹 WISHLIST COUNT BADGE */
@@ -128,26 +131,23 @@
 }
 
 .wishlist-card-full img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .wishlist-card-full:hover img {
   transform: scale(1.1);
 }
+
 .wishlist-fullscreen {
   width: 100%;
   padding: 20px 40px;
-  /* background: #f1f3f6; */
-}
-.wishlist-card-full img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
 }
 
 .wishlist-body {
   padding: 12px;
-  
 }
 
 .location {
@@ -160,6 +160,7 @@
   color: #2874f0;
   margin: 8px 0;
 }
+
 .booking-actions {
   display: flex;
   gap: 15px;
@@ -193,7 +194,6 @@
   text-align: center;
 }
 
-
 /* 🔹 REMOVE BUTTON */
 .remove-btn {
   width: 100%;
@@ -220,9 +220,122 @@
   transform: translateY(0);
 }
 
-/* 🔹 MOBILE */
+/* ========== Booking Cards ========== */
+.booking-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.booking-card {
+  background: #f9faff;
+  border-radius: 12px;
+  border: 1px solid #e4e7f1;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.booking-card:hover {
+  box-shadow: 0 4px 14px rgba(24, 30, 75, 0.12);
+}
+
+.booking-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: #181e4b;
+  color: white;
+}
+
+.booking-card-header h5 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.booking-status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-failed {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.booking-card-body {
+  padding: 16px 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.booking-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-label {
+  font-size: 0.78rem;
+  color: #888;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.booking-amount {
+  font-weight: 700;
+  color: #181e4b;
+  font-size: 1.05rem;
+}
+
+.booking-txn {
+  font-size: 0.82rem;
+  color: #666;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+.no-bookings {
+  text-align: center;
+  padding: 30px;
+  color: #888;
+}
+
+.no-bookings p {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .wishlist-grid-full {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 576px) {
+  .booking-card-body {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-nav {
+    flex-wrap: wrap;
+  }
+}
+
 }
