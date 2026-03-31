@@ -1,0 +1,220 @@
+.footer-container {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    color: white;
+    padding: 60px 6% 15px;
+    margin-top: 50px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative background circle */
+.footer-container::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+    gap: 30px;
+    position: relative;
+    z-index: 10;
+    margin-bottom: 40px;
+}
+
+.footer-logo {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+    letter-spacing: -0.5px;
+    color: #fff;
+}
+
+.footer-logo span {
+    color: #F1A501;
+}
+
+.footer-section p {
+    color: #94a3b8;
+    line-height: 1.6;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+}
+
+.footer-section h4 {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.footer-section h4::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 30px;
+    height: 2px;
+    background: #F1A501;
+    border-radius: 10px;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section li {
+    margin-bottom: 10px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.footer-section li a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.footer-section li a:hover {
+    color: #F1A501;
+    transform: translateX(5px);
+}
+
+.contact-list li i {
+    color: #F1A501;
+    font-size: 0.95rem;
+}
+
+/* Social Icons */
+.social-links {
+    display: flex;
+    gap: 10px;
+}
+
+.social-links a {
+    width: 34px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    color: #fff;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.9rem;
+}
+
+.social-links a:hover {
+    transform: translateY(-3px);
+    background: var(--primary, #6366f1);
+    border-color: var(--primary, #6366f1);
+    box-shadow: 0 8px 15px rgba(99, 102, 241, 0.2);
+}
+
+.social-links a.fb:hover {
+    background: #1877F2;
+}
+
+.social-links a.tw:hover {
+    background: #1DA1F2;
+}
+
+.social-links a.yt:hover {
+    background: #FF0000;
+}
+
+/* Newsletter */
+.newsletter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.newsletter-form input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 15px;
+    border-radius: 10px;
+    color: #fff;
+    outline: none;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.newsletter-form input:focus {
+    border-color: #F1A501;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-subscribe {
+    background: #F1A501;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.btn-subscribe:hover {
+    background: #d99401;
+    transform: scale(1.02);
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+@media (max-width: 1200px) {
+    .footer-content {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .footer-container {
+        padding: 40px 6% 20px;
+        text-align: center;
+    }
+
+    .footer-section h4::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .footer-section li {
+        justify-content: center;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+}

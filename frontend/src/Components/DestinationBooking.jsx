@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const STORAGE_KEY = "DestinationBooking";
 
 const DestinationBooking = () => {
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
   const [filter, setFilter] = useState("all");
   const [selectedDate, setSelectedDate] = useState("");
@@ -32,8 +34,10 @@ const DestinationBooking = () => {
       {/* HEADER + FILTERS */}
       <div className="d-flex justify-content-between align-items-center mb-3 gap-2">
         <h4 className="fw-bold m-0">📄 Payment History</h4>
-
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-2 align-items-center">
+          <button className="btn btn-outline-dark btn-sm me-2" onClick={() => navigate("/")}>
+            <i className="fas fa-home me-1"></i> Home
+          </button>
           <input
             type="date"
             className="form-control form-control-sm"
@@ -92,11 +96,10 @@ const DestinationBooking = () => {
                   <td>₹{b.totalAmount}</td>
                   <td>
                     <span
-                      className={`badge ${
-                        b.status === "success"
-                          ? "bg-success"
-                          : "bg-danger"
-                      }`}
+                      className={`badge ${b.status === "success"
+                        ? "bg-success"
+                        : "bg-danger"
+                        }`}
                     >
                       {b.status.toUpperCase()}
                     </span>

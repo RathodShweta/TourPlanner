@@ -1,389 +1,365 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import "./Destinations.css";
+
+// Import Destination Images
+import goa1 from "../assets/destinations/goa_1.jpg";
+import goa2 from "../assets/destinations/goa_2.jpg";
+import goa3 from "../assets/destinations/goa_3.jpg";
+import manali from "../assets/destinations/manali.jpg";
+import shimla from "../assets/destinations/shimla.jpg";
+import darjeeling from "../assets/destinations/darjeeling.jpg";
+import andaman from "../assets/destinations/andaman.jpg";
+import udaipur from "../assets/destinations/udaipur.jpg";
+import jaipur from "../assets/destinations/jaipur.jpg";
+import varanasi from "../assets/destinations/varanasi.jpg";
+import goldenTemple from "../assets/destinations/golden_temple.jpg";
+import tajMahal from "../assets/destinations/taj_mahal.jpg";
+import hampi from "../assets/destinations/hampi.jpg";
+import jimCorbett from "../assets/destinations/jim_corbett.jpg";
+import alleppey from "../assets/destinations/alleppey.jpg";
+import munnar from "../assets/destinations/munnar.jpg";
+import lehLadakh from "../assets/destinations/leh_ladakh.jpg";
+import rishikesh from "../assets/destinations/rishikesh.jpg";
+import ooty from "../assets/destinations/ooty.jpg";
 
 const Destinations = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const user = JSON.parse(localStorage.getItem("user"));
 
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [seasonFilter, setSeasonFilter] = useState("All");
     const [budgetFilter, setBudgetFilter] = useState("All");
+    const [categoryFilter, setCategoryFilter] = useState("All");
+    const [destinations, setDestinations] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const previewRef = useRef(null);
 
-    const destinations = [
+    const fallbackDestinations = [
         {
-            name: "Goa",
-            state: "Goa",
-            season: "Winter",
-            budgetType: "Medium",
-            bestTime: "Oct – Mar",
-            rating: 4.6,
-            price: "₹18,000",
-            desc: "Famous for beaches, nightlife and water sports.",
-            images: [
-                "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80",
-                "https://images.unsplash.com/photo-1493558103817-58b2924bce98?auto=format&fit=crop&w=1600&q=80",
-                "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80"
-            ],
-            famousPlaces: ["Baga Beach", "Calangute"],
-            food: ["Seafood", "Fish Curry"],
-            hotels: ["Taj Resort", "Novotel"],
-            transport: ["Flight", "Train"]
+            name: t("goaTitle"), state: "Goa", season: "Winter", bestSeason: "Nov to Feb", duration: "4-5 Days", budgetType: "Medium", rating: 4.6, price: "₹18,000", category: "Beach",
+            desc: t("goaDesc"), images: [goa1, goa2, goa3],
+            famousPlaces: ["Baga Beach", "Old Goa", "Dudhsagar Falls"], food: ["Fish Curry", "Bebinca"],
+            hotels: ["Taj Resort", "Novotel"], transport: ["Flight", "Bike"]
         },
-
         {
-            name: "Manali",
-            state: "Himachal Pradesh",
-            season: "Summer",
-            budgetType: "Low",
-            bestTime: "Mar – Jun",
-            rating: 4.5,
-            price: "₹15,000",
-            desc: "Hill station famous for snow and adventure sports.",
-            images: ["https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800"],
-            famousPlaces: ["Solang Valley", "Rohtang Pass"],
-            food: ["Siddu", "Thukpa"],
-            hotels: ["Snow Valley"],
-            transport: ["Bus", "Cab"]
+            name: t("manaliTitle"), state: "Himachal Pradesh", season: "Summer", bestSeason: "Mar to June", duration: "5-6 Days", budgetType: "Low", rating: 4.5, price: "₹15,000", category: "Adventure",
+            desc: t("manaliDesc"), images: [manali],
+            famousPlaces: ["Hadimba Temple", "Solang Valley"], food: ["Siddu", "Kullu Trout"],
+            hotels: ["Snow Valley"], transport: ["Bus", "Cab"]
         },
-
         {
-            name: "Shimla",
-            state: "Himachal Pradesh",
-            season: "Summer",
-            budgetType: "Low",
-            bestTime: "Mar – Jun",
-            rating: 4.4,
-            price: "₹12,000",
-            desc: "Colonial hill station with scenic beauty.",
-            images: ["https://images.unsplash.com/photo-1597079910443-60c43fc4f729?w=800"],
-            famousPlaces: ["Mall Road", "Jakhu Temple"],
-            food: ["Chana Madra"],
-            hotels: ["Hotel Willow Banks"],
-            transport: ["Bus", "Train"]
+            name: t("shimlaTitle"), state: "Himachal Pradesh", season: "Summer", bestSeason: "Mar to June", duration: "3-4 Days", budgetType: "Low", rating: 4.4, price: "₹12,000", category: "Honeymoon",
+            desc: t("shimlaDesc"), images: [shimla],
+            famousPlaces: ["The Ridge", "Jakhoo Hill"], food: ["Madra", "Babru"],
+            hotels: ["Hotel Willow Banks"], transport: ["Toy Train", "Bus"]
         },
-
         {
-            name: "Darjeeling",
-            state: "West Bengal",
-            season: "Summer",
-            budgetType: "Medium",
-            bestTime: "Apr – Jun",
-            rating: 4.5,
-            price: "₹14,500",
-            desc: "Tea gardens and Himalayan views.",
-            images: ["https://images.unsplash.com/photo-1502784444187-359ac186c5bb?w=800"],
-            famousPlaces: ["Tiger Hill", "Tea Gardens"],
-            food: ["Momos", "Thukpa"],
-            hotels: ["Mayfair Hotel"],
-            transport: ["Train", "Cab"]
+            name: t("darjeelingTitle"), state: "West Bengal", season: "Summer", bestSeason: "Apr to June", duration: "4-5 Days", budgetType: "Medium", rating: 4.5, price: "₹14,500", category: "Nature",
+            desc: t("darjeelingDesc"), images: [darjeeling],
+            famousPlaces: ["Tiger Hill", "Batasia Loop"], food: ["Momos", "Momos"],
+            hotels: ["Mayfair Hotel"], transport: ["Train", "Cab"]
         },
-
         {
-            name: "Andaman",
-            state: "Andaman & Nicobar",
-            season: "Winter",
-            budgetType: "High",
-            bestTime: "Nov – Apr",
-            rating: 4.7,
-            price: "₹35,000",
-            desc: "Crystal clear beaches and islands.",
-            images: ["https://images.unsplash.com/photo-1589909202802-8f4abbce7482?w=800"],
-            famousPlaces: ["Havelock Island"],
-            food: ["Seafood"],
-            hotels: ["Sea Shell Resort"],
-            transport: ["Flight"]
+            name: t("andamanTitle"), state: "Andaman & Nicobar", season: "Winter", bestSeason: "Oct to May", duration: "6-7 Days", budgetType: "High", rating: 4.7, price: "₹35,000", category: "Honeymoon",
+            desc: t("andamanDesc"), images: [andaman],
+            famousPlaces: ["Radhanagar Beach", "Cellular Jail"], food: ["Lobster", "Fish Curry"],
+            hotels: ["Sea Shell Resort"], transport: ["Flight", "Ferry"]
         },
-
         {
-            name: "Udaipur",
-            state: "Rajasthan",
-            season: "Winter",
-            budgetType: "Medium",
-            bestTime: "Oct – Mar",
-            rating: 4.4,
-            price: "₹26,000",
-            desc: "City of lakes and palaces.",
-            images: ["https://images.unsplash.com/photo-1590424744295-ff08f431668b?w=800"],
-            famousPlaces: ["City Palace", "Lake Pichola"],
-            food: ["Dal Baati"],
-            hotels: ["Taj Lake Palace"],
-            transport: ["Train", "Bus"]
+            name: t("udaipurTitle"), state: "Rajasthan", season: "Winter", bestSeason: "Oct to Mar", duration: "3-4 Days", budgetType: "Medium", rating: 4.4, price: "₹26,000", category: "Heritage",
+            desc: t("udaipurDesc"), images: [udaipur],
+            famousPlaces: ["City Palace", "Jag Mandir"], food: ["Dal Bati Churma"],
+            hotels: ["Taj Lake Palace"], transport: ["Train", "Cab"]
         },
-
         {
-            name: "Jaipur",
-            state: "Rajasthan",
-            season: "Winter",
-            budgetType: "Low",
-            bestTime: "Oct – Mar",
-            rating: 4.3,
-            price: "₹10,000",
-            desc: "Pink city with forts and palaces.",
-            images: ["https://images.unsplash.com/photo-1548013146-72479768bbaa?w=800"],
-            famousPlaces: ["Amber Fort", "Hawa Mahal"],
-            food: ["Ghewar"],
-            hotels: ["ITC Rajputana"],
-            transport: ["Train", "Bus"]
+            name: "Jaipur", state: "Rajasthan", season: "Winter", bestSeason: "Oct to Mar", duration: "3-4 Days", budgetType: "Low", rating: 4.3, price: "₹10,000", category: "Heritage",
+            desc: "The Pink City, known for its majestic forts and magnificent palaces.", images: [jaipur],
+            famousPlaces: ["Amber Fort", "Nahargarh Fort"], food: ["Piyaz Kachori"],
+            hotels: ["ITC Rajputana"], transport: ["Train", "Bus"]
         },
-
         {
-            name: "Varanasi",
-            state: "Uttar Pradesh",
-            season: "Winter",
-            budgetType: "Low",
-            bestTime: "Oct – Feb",
-            rating: 4.2,
-            price: "₹9,500",
-            desc: "Spiritual capital of India.",
-            images: ["https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=800"],
-            famousPlaces: ["Ganga Ghat", "Kashi Vishwanath"],
-            food: ["Kachori Sabzi"],
-            hotels: ["BrijRama Palace"],
-            transport: ["Train", "Bus"]
+            name: t("varanasiTitle"), state: "Uttar Pradesh", season: "Winter", bestSeason: "Nov to Feb", duration: "2-3 Days", budgetType: "Low", rating: 4.2, price: "₹9,500", category: "Spiritual",
+            desc: t("varanasiDesc"), images: [varanasi],
+            famousPlaces: ["Dashashwamedh Ghat", "Sarnath"], food: ["Lassi", "Banarasi Paan"],
+            hotels: ["BrijRama Palace"], transport: ["Train", "Bus"]
         },
-
         {
-            name: "Golden Temple",
-            state: "Punjab",
-            season: "Winter",
-            budgetType: "Low",
-            bestTime: "Oct – Mar",
-            rating: 4.8,
-            price: "₹7,000",
-            desc: "Sacred Sikh shrine.",
-            images: ["https://images.unsplash.com/photo-1588096344356-9b7660f78553?w=800"],
-            famousPlaces: ["Harmandir Sahib"],
-            food: ["Langar"],
-            hotels: ["Saragarhi Sarai"],
-            transport: ["Train"]
+            name: t("goldenTempleTitle"), state: "Punjab", season: "Winter", bestSeason: "Oct to Mar", duration: "2 Days", budgetType: "Low", rating: 4.8, price: "₹7,000", category: "Spiritual",
+            desc: t("goldenTempleDesc"), images: [goldenTemple],
+            famousPlaces: ["Harmandir Sahib", "Jallianwala Bagh"], food: ["Amritsari Kulcha"],
+            hotels: ["Saragarhi Sarai"], transport: ["Train", "Bus"]
         },
-
         {
-            name: "Taj Mahal",
-            state: "Uttar Pradesh",
-            season: "Winter",
-            budgetType: "Low",
-            bestTime: "Oct – Mar",
-            rating: 4.9,
-            price: "₹5,000",
-            desc: "One of the seven wonders of the world.",
-            images: ["https://images.unsplash.com/photo-1564507592333-c60657451dd7?w=800"],
-            famousPlaces: ["Agra Fort"],
-            food: ["Petha"],
-            hotels: ["ITC Mughal"],
-            transport: ["Train"]
+            name: t("tajMahalTitle"), state: "Uttar Pradesh", season: "Winter", bestSeason: "Oct to Mar", duration: "1-2 Days", budgetType: "Low", rating: 4.9, price: "₹5,000", category: "Heritage",
+            desc: t("tajMahalDesc"), images: [tajMahal],
+            famousPlaces: ["Agra Fort", "Mehtab Bagh"], food: ["Petha", "Bedai"],
+            hotels: ["ITC Mughal"], transport: ["Train", "Expressway"]
         },
-
         {
-            name: "Hampi",
-            state: "Karnataka",
-            season: "Winter",
-            budgetType: "Medium",
-            bestTime: "Oct – Feb",
-            rating: 4.6,
-            price: "₹11,000",
-            desc: "Ancient ruins and temples.",
-            images: ["https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=800"],
-            famousPlaces: ["Virupaksha Temple"],
-            food: ["South Indian Meals"],
-            hotels: ["Heritage Resort"],
-            transport: ["Bus"]
+            name: t("hampiTitle"), state: "Karnataka", season: "Winter", bestSeason: "Oct to Feb", duration: "3-4 Days", budgetType: "Medium", rating: 4.6, price: "₹11,000", category: "Heritage",
+            desc: t("hampiDesc"), images: [hampi],
+            famousPlaces: ["Vittala Temple", "Lotus Mahal"], food: ["Badnekayi Ennegayi"],
+            hotels: ["Heritage Resort"], transport: ["Bus", "Train"]
         },
-
         {
-            name: "Jim Corbett",
-            state: "Uttarakhand",
-            season: "Winter",
-            budgetType: "High",
-            bestTime: "Nov – Feb",
-            rating: 4.5,
-            price: "₹19,000",
-            desc: "Wildlife safari and jungle stay.",
-            images: ["https://images.unsplash.com/photo-1581852017103-68accd35243e?w=800"],
-            famousPlaces: ["National Park"],
-            food: ["Local Cuisine"],
-            hotels: ["Forest Resort"],
-            transport: ["Train", "Cab"]
+            name: t("jimCorbettTitle"), state: "Uttarakhand", season: "Winter", bestSeason: "Nov to June", duration: "2-3 Days", budgetType: "High", rating: 4.5, price: "₹19,000", category: "Wildlife",
+            desc: t("jimCorbettDesc"), images: [jimCorbett],
+            famousPlaces: ["Dhikala Zone", "Garjiya Devi"], food: ["Kumaoni Cuisine"],
+            hotels: ["Forest Resort"], transport: ["Train", "Cab"]
         },
-
         {
-            name: "Alleppey",
-            state: "Kerala",
-            season: "Monsoon",
-            budgetType: "Medium",
-            bestTime: "Jun – Sep",
-            rating: 4.4,
-            price: "₹21,000",
-            desc: "Backwaters and houseboats.",
-            images: ["https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800"],
-            famousPlaces: ["Backwaters"],
-            food: ["Kerala Sadya"],
-            hotels: ["Houseboat"],
-            transport: ["Train"]
+            name: t("alleppeyTitle"), state: "Kerala", season: "Monsoon", bestSeason: "Aug to Mar", duration: "2-3 Days", budgetType: "Medium", rating: 4.4, price: "₹21,000", category: "Nature",
+            desc: t("alleppeyDesc"), images: [alleppey],
+            famousPlaces: ["Alappuzha Beach", "Pathiramanal"], food: ["Karimeen Pollichathu"],
+            hotels: ["Houseboat"], transport: ["Train", "Bus"]
         },
-
         {
-            name: "Munnar",
-            state: "Kerala",
-            season: "Summer",
-            budgetType: "Medium",
-            bestTime: "Mar – Jun",
-            rating: 4.6,
-            price: "₹17,000",
-            desc: "Tea plantations and hills.",
-            images: ["https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?w=800"],
-            famousPlaces: ["Tea Gardens"],
-            food: ["Appam"],
-            hotels: ["Tea County"],
-            transport: ["Bus"]
+            name: "Munnar", state: "Kerala", season: "Summer", bestSeason: "Sept to Mar", duration: "3-4 Days", budgetType: "Medium", rating: 4.6, price: "₹17,000", category: "Nature",
+            desc: "A town in the Western Ghats mountain range known for its tea plantations.", images: [munnar],
+            famousPlaces: ["Eravikulam Park", "Mattupetty Dam"], food: ["Idiyappam"],
+            hotels: ["Tea County"], transport: ["Bus", "Cab"]
         },
-
         {
-            name: "Leh Ladakh",
-            state: "Ladakh",
-            season: "Summer",
-            budgetType: "High",
-            bestTime: "Jun – Sep",
-            rating: 4.8,
-            price: "₹40,000",
-            desc: "Adventure & Himalayan desert.",
-            images: ["https://images.unsplash.com/photo-1605649486053-24c97a707e7b?w=800"],
-            famousPlaces: ["Pangong Lake"],
-            food: ["Thukpa"],
-            hotels: ["Camp Stay"],
-            transport: ["Flight"]
+            name: t("lehLadakhTitle"), state: "Ladakh", season: "Summer", bestSeason: "May to Sept", duration: "7-8 Days", budgetType: "High", rating: 4.8, price: "₹40,000", category: "Adventure",
+            desc: "Breathtaking landscapes, high mountain passes and ancient monasteries.", images: [lehLadakh],
+            famousPlaces: ["Nubra Valley", "Shanti Stupa"], food: ["Skyu", "Chutagi"],
+            hotels: ["Camp Stay"], transport: ["Flight", "Bike"]
         },
-
         {
-            name: "Rishikesh",
-            state: "Uttarakhand",
-            season: "Winter",
-            budgetType: "Low",
-            bestTime: "Oct – Mar",
-            rating: 4.5,
-            price: "₹8,000",
-            desc: "Yoga and river rafting.",
-            images: ["https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800"],
-            famousPlaces: ["Lakshman Jhula"],
-            food: ["Satvik Food"],
-            hotels: ["Ashram Stay"],
-            transport: ["Train"]
+            name: "Rishikesh", state: "Uttarakhand", season: "Winter", bestSeason: "Sept to May", duration: "2-3 Days", budgetType: "Low", rating: 4.5, price: "₹8,000", category: "Adventure",
+            desc: "Known as the Yoga Capital of the World and a base for outdoor adventures.", images: [rishikesh],
+            famousPlaces: ["Triveni Ghat", "Parmarth Niketan"], food: ["Satvik Thali"],
+            hotels: ["Ashram Stay"], transport: ["Train", "Bus"]
         },
-
         {
-            name: "Ooty",
-            state: "Tamil Nadu",
-            season: "Summer",
-            budgetType: "Low",
-            bestTime: "Apr – Jun",
-            rating: 4.3,
-            price: "₹13,000",
-            desc: "Queen of hill stations.",
-            images: ["https://images.unsplash.com/photo-1585999328026-6f8a1c0a7b8d?w=800"],
-            famousPlaces: ["Botanical Garden"],
-            food: ["South Indian"],
-            hotels: ["Lake View Hotel"],
-            transport: ["Train"]
+            name: "Ooty", state: "Tamil Nadu", season: "Summer", bestSeason: "Mar to June", duration: "3-4 Days", budgetType: "Low", rating: 4.3, price: "₹13,000", category: "Nature",
+            desc: "The Queen of Hills, famous for its toy train and tea estates.", images: [ooty],
+            famousPlaces: ["Doddabetta Peak", "Pine Forests"], food: ["Varkey", "Ooty Chocolate"],
+            hotels: ["Lake View Hotel"], transport: ["Toy Train", "Bus"]
         }
     ];
 
+    useEffect(() => {
+        const fetchDestinations = async () => {
+            try {
+                const res = await fetch("http://localhost:5000/api/destinations");
+                const data = await res.json();
+                if (data.success && data.data.length > 0) {
+                    setDestinations([...fallbackDestinations, ...data.data]);
+                } else {
+                    setDestinations(fallbackDestinations);
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                setDestinations(fallbackDestinations);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchDestinations();
+    }, []);
 
-    // FILTER LOGIC
+    const handleSelectPlace = (place) => {
+        setSelectedPlace(place);
+        setTimeout(() => {
+            if (previewRef.current && window.innerWidth < 992) {
+                previewRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        }, 100);
+    };
+
     const filteredDestinations = destinations.filter((d) => {
         const seasonMatch = seasonFilter === "All" || d.season === seasonFilter;
         const budgetMatch = budgetFilter === "All" || d.budgetType === budgetFilter;
-        return seasonMatch && budgetMatch;
+        const categoryMatch = categoryFilter === "All" || d.category === categoryFilter;
+        return seasonMatch && budgetMatch && categoryMatch;
     });
 
-    // BOOK NOW
     const handleBookNow = () => {
-        if (!selectedPlace) {
-            alert("Select destination first");
-            return;
-        }
-
+        if (!selectedPlace) return alert("Select destination first");
         if (!user) {
-            alert("Login first");
+            alert(t("loginFirstDest"));
             navigate("/login");
         } else {
-            navigate("/paymntdetaildesti", {
-                state: { place: selectedPlace }
-            });
+            navigate("/paymntdetaildesti", { state: { place: selectedPlace } });
         }
     };
 
     return (
-        <div className="container py-5">
-            <h2 className="fw-bold mb-4">🌍 Explore Destinations</h2>
+        <div className="destinations-page page-fade-in">
+            <header className="page-header">
+                <div className="container">
+                    <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div className="text-start">
+                            <h1>{t("destHeaderTitle")}<span>{t("destHeaderSpan")}</span></h1>
+                            <p className="mb-0 text-white-50">{t("destHeaderDesc")}</p>
+                        </div>
+                        {user?.isAdmin && (
+                            <button className="btn btn-primary btn-sm rounded-pill px-3 py-1 shadow-sm border-0 fw-bold" style={{ fontSize: '0.75rem' }} onClick={() => navigate("/admin/add-destination")}>
+                                <i className="fas fa-plus me-1" style={{ fontSize: '0.7rem' }}></i> Add Destination
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </header>
 
-            {/* FILTERS */}
-            <div className="row mb-4">
-                <div className="col-md-3">
-                    <select className="form-select" value={seasonFilter}
-                        onChange={(e) => setSeasonFilter(e.target.value)}>
-                        <option value="All">🌦️ All Seasons</option>
-                        <option value="Summer">Summer</option>
-                        <option value="Winter">Winter</option>
-                        <option value="Monsoon">Monsoon</option>
-                    </select>
+            <div className="container">
+                <div className="filter-bar">
+                    <div className="filter-group">
+                        <label><i className="fas fa-mountain-sun"></i> {t("filterExperience")}</label>
+                        <select className="form-select" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+                            <option value="All">{t("allExperiences")}</option>
+                            <option value="Honeymoon">💕 {t("catHoneymoon")}</option>
+                            <option value="Nature">🌲 {t("catHills")}</option>
+                            <option value="Adventure">🧗 {t("catWildlife")}</option>
+                            <option value="Spiritual">🕉️ {t("catReligious")}</option>
+                            <option value="Heritage">🏰 {t("catHistory")}</option>
+                            <option value="Beach">🏖️ {t("catBeaches")}</option>
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <label><i className="fas fa-cloud-sun"></i> {t("filterSeason")}</label>
+                        <select className="form-select" value={seasonFilter} onChange={(e) => setSeasonFilter(e.target.value)}>
+                            <option value="All">{t("allSeasons")}</option>
+                            <option value="Summer">Summer Vibes</option>
+                            <option value="Winter">Winter Wonderland</option>
+                            <option value="Monsoon">Monsoon Magic</option>
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <label><i className="fas fa-wallet"></i> {t("filterBudget")}</label>
+                        <select className="form-select" value={budgetFilter} onChange={(e) => setBudgetFilter(e.target.value)}>
+                            <option value="All">{t("allBudgets")}</option>
+                            <option value="Low">Economy Friendly</option>
+                            <option value="Medium">Standard Comfort</option>
+                            <option value="High">Premium Luxury</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div className="col-md-3">
-                    <select className="form-select" value={budgetFilter}
-                        onChange={(e) => setBudgetFilter(e.target.value)}>
-                        <option value="All">💸 All Budgets</option>
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
-                    </select>
-                </div>
-            </div>
-
-            <div className="row">
-                {/* LIST */}
-                <div className="col-md-6">
-                    {filteredDestinations.map((place, i) => (
-                        <div key={i}
-                            className="card mb-3 shadow-sm"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => setSelectedPlace(place)}>
-                            <div className="card-body">
-                                <h5>{place.name}</h5>
-                                <p className="text-muted mb-1">{place.state}</p>
-                                <small>🌦️ {place.season} | 💸 {place.budgetType}</small><br />
-                                <span className="badge bg-warning text-dark mt-2">{place.price}</span>
+                {loading ? (
+                    <div className="text-center py-5">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="row mt-5">
+                        <div className="col-lg-7">
+                            <div className="destinations-grid">
+                                {filteredDestinations.length > 0 ? filteredDestinations.map((place, i) => (
+                                    <div key={i} className={`place-card ${selectedPlace?.name === place.name ? 'active' : ''}`} onClick={() => handleSelectPlace(place)}>
+                                        <div className="place-img">
+                                            <img src={place.images[0]} alt={place.name} loading="lazy" />
+                                        </div>
+                                        <div className="place-brief">
+                                            <div className="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h3>{place.name}</h3>
+                                                    <div className="d-flex align-items-center gap-2">
+                                                        <span>{place.state}</span>
+                                                        <span className="badge bg-light text-dark border-0 py-1 px-2" style={{ fontSize: '0.65rem', fontWeight: '700' }}>{place.category}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="rating-tag">
+                                                    <i className="fas fa-star"></i> {place.rating || 4.5}
+                                                </div>
+                                            </div>
+                                            <div className="place-meta">
+                                                <span className="price-tag">{place.price}</span>
+                                                <button className="btn btn-sm btn-outline-primary rounded-pill">{t("viewDetails")}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <div className="text-center py-5">
+                                        <i className="fas fa-search fa-3x text-muted mb-3"></i>
+                                        <h4>No destinations found</h4>
+                                        <p className="text-muted">Try adjusting your filters to find more places.</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
-                    ))}
-                </div>
 
-                {/* PREVIEW */}
-                <div className="col-md-6">
-                    {selectedPlace ? (
-                        <div className="card shadow-lg">
-                            <img src={selectedPlace.images[0]}
-                                className="card-img-top"
-                                style={{ height: "260px", objectFit: "cover" }} />
+                        <div className="col-lg-5" ref={previewRef}>
+                            {selectedPlace ? (
+                                <div className="sticky-preview">
+                                    <div className="glass-card">
+                                        <div className="preview-img-container">
+                                            <img src={selectedPlace.images[0]} alt={selectedPlace.name} loading="lazy" />
+                                            <span className="badge-featured">{selectedPlace.category}</span>
+                                        </div>
+                                        <div className="preview-body">
+                                            <div className="d-flex justify-content-between align-items-center mb-1">
+                                                <h2>{selectedPlace.name}</h2>
+                                                <div className="rating-pill">
+                                                    <i className="fas fa-star me-1"></i> {selectedPlace.rating || 4.5}
+                                                </div>
+                                            </div>
+                                            <p className="state-subtitle"><i className="fas fa-location-dot"></i> {selectedPlace.state}</p>
+                                            <p className="desc-text">{selectedPlace.desc}</p>
 
-                            <div className="card-body">
-                                <h4>{selectedPlace.name}</h4>
-                                <p>{selectedPlace.desc}</p>
-                                <p>⭐ {selectedPlace.rating} | 💰 {selectedPlace.price}</p>
-                                <button className="btn btn-warning w-100"
-                                    onClick={handleBookNow}>
-                                    Visit Now
-                                </button>
-                            </div>
+                                            <div className="quick-info-grid">
+                                                <div className="info-item">
+                                                    <i className="fas fa-heart" style={{ color: '#f43f5e' }}></i>
+                                                    <div>
+                                                        <span>Category</span>
+                                                        <p>{selectedPlace.category}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="info-item">
+                                                    <i className="fas fa-calendar-alt" style={{ color: '#10b981' }}></i>
+                                                    <div>
+                                                        <span>{t("bestTime")}</span>
+                                                        <p>{selectedPlace.bestSeason}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="detail-sections">
+                                                {selectedPlace.famousPlaces && (
+                                                    <div className="detail-row">
+                                                        <span className="row-label"><i className="fas fa-map-pin" style={{ color: '#f43f5e' }}></i> {t("famousSpots")}</span>
+                                                        <div className="tags-flex">
+                                                            {selectedPlace.famousPlaces.map((p, idx) => <span key={idx} className="tag">{p}</span>)}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {selectedPlace.food && (
+                                                    <div className="detail-row">
+                                                        <span className="row-label"><i className="fas fa-utensils" style={{ color: '#f59e0b' }}></i> {t("iconicFoods")}</span>
+                                                        <div className="tags-flex">
+                                                            {selectedPlace.food.map((f, idx) => <span key={idx} className="tag">{f}</span>)}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <button className="btn-book-now-compact" onClick={handleBookNow}>
+                                                {t("bookNow")}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="select-placeholder">
+                                    <i className="fas fa-map-marked-alt"></i>
+                                    <h3>{t("selectADestination")}</h3>
+                                    <p>{t("selectADestinationDesc")}</p>
+                                </div>
+                            )}
                         </div>
-                    ) : (
-                        <div className="border p-5 text-center text-muted">
-                            Select a destination to preview
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );
 };
 
-export default Destinations;
+export default Destinations;

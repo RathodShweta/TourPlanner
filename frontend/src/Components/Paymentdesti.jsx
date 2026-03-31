@@ -75,6 +75,26 @@ const Payment = () => {
           if (data.success) {
             setPaymentResult("success");
             saveBookingHistory("success");
+
+            // 📧 Send confirmation email with PDF attachment
+            fetch("http://localhost:5000/api/bookings/send-confirmation", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: user?.email,
+                name: user?.name,
+                type: "tour",
+                bookingDetails: {
+                  "Booking ID": transactionId,
+                  "Customer Name": user?.name,
+                  "Destination": place?.name,
+                  "Travel Date": travelDate,
+                  "Duration": days + " Day(s)",
+                  "Total Amount": "INR " + totalAmount
+                }
+              })
+            }).catch(err => console.error("Tour Email send error:", err));
+
           } else {
             setPaymentResult("failed");
             saveBookingHistory("failed");
@@ -116,9 +136,12 @@ const Payment = () => {
         className="card shadow-lg print-area responsive-card"
       >
         <div className="card-body">
-          <h4 className="fw-bold text-center mb-3">
-            🧾 Payment Receipt
-          </h4>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4 className="fw-bold m-0">🧾 Payment Receipt</h4>
+            <button className="btn btn-outline-danger btn-sm" onClick={() => navigate("/")}>
+              <i className="fas fa-times me-2"></i> Cancel & Home
+            </button>
+          </div>
 
           <h6>👤 User Details</h6>
           <p className="mb-1">
@@ -177,6 +200,15 @@ const Payment = () => {
               >
                 ⬇ Download Receipt
               </button>
+
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLScumjRuWOFv97nyPT6qdplIBX1z4PNcb7Oylbd9jMnpDyIknA/viewform?usp=sf_link"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary w-100 mb-2"
+              >
+                <i className="fas fa-star me-2"></i> Share Feedback
+              </a>
 
               <button
                 className="btn btn-dark w-100 mb-2"

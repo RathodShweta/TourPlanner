@@ -23,6 +23,14 @@ app.use("/api/hotels", require("./routes/hotelRoutes"));
 app.use("/api/hotel-bookings", require("./routes/hotelBookingRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/tourbot", require("./routes/tourbotRoutes"));
+app.use("/api/messages", require("./routes/messageRoutes"));
+app.use("/api/feedback", require("./routes/feedbackRoutes"));
+app.use("/api/bookings", require("./routes/bookingEmailRoutes"));
+app.use("/api/destinations", require("./routes/destinationRoutes"));
+app.use("/api/flight-bookings", require("./routes/flightBookingRoutes"));
+app.use("/api/flights", require("./routes/flightRoutes"));
+app.use("/api/faqs", require("./routes/faqRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes"));
 
 app.get("/", (req, res) => {
   res.send("Backend running with MVC structure 🚀");

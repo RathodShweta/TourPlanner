@@ -1,0 +1,263 @@
+.home-container {
+    width: 100%;
+}
+
+.featured-section {
+    padding: 1px 8% 50px;
+    background-color: #fff;
+    padding-bottom: 50px;
+}
+
+.featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 10px;
+}
+
+.featured-card {
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.featured-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.card-image img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+}
+
+.card-info {
+    padding: 25px;
+}
+
+.info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.info-header h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--dark, #1e293b);
+    margin: 0;
+}
+
+.info-header span {
+    font-weight: 600;
+    color: var(--primary, #6366f1);
+}
+
+.info-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--gray, #64748b);
+    font-size: 0.9rem;
+}
+
+.home-rating {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.85rem;
+}
+
+.btn-secondary {
+    display: inline-block;
+    padding: 14px 40px;
+    background-color: var(--dark, #1e293b);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: var(--primary, #6366f1);
+    transform: scale(1.05);
+}
+
+/* Newsletter section */
+.newsletter-section {
+    padding: 2px 8% 2px;
+    display: flex;
+    justify-content: center;
+}
+
+.newsletter-box {
+    width: 100%;
+    max-width: 900px;
+    background-color: #f9f7fe;
+    padding: 40px 30px 20px;
+    border-radius: 80px 20px 20px 20px;
+    text-align: center;
+    position: relative;
+}
+
+.newsletter-box h3 {
+    font-size: 1.5rem;
+    color: var(--gray, #5e6282);
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+.newsletter-input {
+    display: flex;
+    max-width: 550px;
+    margin: 0 auto;
+    gap: 12px;
+    background: white;
+    padding: 8px 8px 8px 20px;
+    border-radius: 12px;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.newsletter-input i {
+    color: var(--gray, #64748b);
+}
+
+.newsletter-input input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+}
+
+.btn-subscribe-cta {
+    background: linear-gradient(135deg, #ff9472 0%, #f2709c 100%);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-subscribe-cta:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(242, 112, 156, 0.3);
+}
+
+/* Recommendations Section */
+.recommendations-section {
+    padding: 80px 8%;
+    background-color: #f8fafc;
+}
+
+.rec-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.rec-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.rec-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #f59e0b;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    z-index: 2;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.rec-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.flight-icon-backdrop {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+}
+
+.rec-content {
+    padding: 20px;
+}
+
+.rec-type {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.5px;
+}
+
+.rec-rating {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.9rem;
+}
+
+.rec-card h4 {
+    margin: 10px 0 5px;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.rec-price {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.rec-price small {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.rec-btn {
+    background: #f59e0b;
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: opacity 0.2s;
+}
+
+.rec-btn:hover {
+    opacity: 0.9;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .recommendations-section {
+        padding: 50px 5%;
+    }
+}

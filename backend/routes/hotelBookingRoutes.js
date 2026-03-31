@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
 
 const {
   createHotelBooking,
@@ -11,7 +11,7 @@ const {
 
 router.post("/", createHotelBooking);
 router.get("/seats", getBookedSeats);
-router.get("/my", authMiddleware, getMyBookings);
+router.get("/my", protect, getMyBookings);
 router.get("/", getAllHotelBookings);
 
 module.exports = router;

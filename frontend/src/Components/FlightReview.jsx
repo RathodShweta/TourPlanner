@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import "./FlightReview.css";
 
 const FlightReview = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const getSeatKey = (flight) =>
-  `FLIGHT_SEATS_${flight.airline}_${flight.time}`;
 
   const destination = location.state?.destination;
   const flight = location.state?.flight;
 
   const [journeyDate, setJourneyDate] = useState("");
   const [adults, setAdults] = useState(1);
+  const [seatType, setSeatType] = useState("Window"); // New: Seat Selection
   const [passenger, setPassenger] = useState({
     name: "",
     email: "",
@@ -20,33 +20,28 @@ const FlightReview = () => {
 
   if (!destination || !flight) {
     return (
-      <div className="container text-center mt-5">
-        <h5>⚠️ No flight data found</h5>
-        <button
-          className="btn btn-primary"
-          onClick={() => navigate("/Flights")}
-        >
-          Go Back
-        </button>
+      <div className="container text-center mt-5 py-5">
+        <div className="card border-0 shadow-sm p-5 rounded-4">
+          <i className="fas fa-exclamation-triangle fs-1 text-warning mb-3"></i>
+          <h5 className="fw-bold">No flight data found</h5>
+          <button className="btn btn-primary mt-3" onClick={() => navigate("/Flights")}>
+            Go Back
+          </button>
+        </div>
       </div>
     );
   }
 
   const TOTAL_SEATS = 60;
   const seatKey = `FLIGHT_SEATS_${flight.airline}_${flight.time}`;
-  const bookedSeats =
-  Number(localStorage.getItem(seatKey)) || 0;
-
+  const bookedSeats = Number(localStorage.getItem(seatKey)) || 0;
   const availableSeats = TOTAL_SEATS - bookedSeats;
 
-  const pricePerAdult = Number(
-    destination.price.replace(/[^0-9]/g, "")
-  );
-
+  const pricePerAdult = Number(destination.price.replace(/[^0-9]/g, ""));
   const totalAmount = pricePerAdult * adults;
 
   const handleConfirm = () => {
-    if (!journeyDate || !passenger.name || !passenger.email) {
+    if (!journeyDate || !passenger.name || !passenger.email || !passenger.mobile) {
       alert("Please fill all required details");
       return;
     }
@@ -63,140 +58,212 @@ const FlightReview = () => {
         passenger,
         journeyDate,
         adults,
+        seatType,
         totalAmount
       }
     });
   };
 
   return (
-    <div className="container py-1 d-flex justify-content-center">
-      <div
-        className="card shadow-lg p-4 responsive-card"
-        style={{ maxWidth: "900px", width: "100%" }}
-      >
-        <h4 className="fw-bold text-center mb-4">
-          ✈️ Details of Flights
-        </h4>
+    <div className="flight-review-wrapper">
+      <div className="container">
 
-        {/* 🔹 TWO COLUMN LAYOUT */}
-        <div className="row g-3">
+        {/* UPPER NAVIGATION & TITLE */}
+        <div className="row mb-4 align-items-center">
+          <div className="col-md-8">
+            <h1 className="main-review-title">Checkout</h1>
+            <p className="text-muted lead mb-0">Review your journey and secure your booking in one step.</p>
+          </div>
+          <div className="col-md-4 text-md-end">
+            <Link to="/flights" className="btn btn-outline-dark border-2 rounded-pill fw-bold px-4">
+              <i className="fas fa-chevron-left me-2"></i> Change Flight
+            </Link>
+          </div>
+        </div>
 
-          {/* LEFT SIDE */}
-          <div className="col-md-6">
+        <div className="ticket-container">
 
-            {/* FLIGHT DETAILS */}
-            <div className="mb-3">
-              <h6 className="fw-bold">✈️ Flight Details</h6>
-              <div className="border rounded p-2 small">
-                <p className="mb-1"><b>Airline:</b> {flight.airline}</p>
-                <p className="mb-1"><b>Type:</b> {flight.type}</p>
-                <p className="mb-1"><b>Departure:</b> {flight.time}</p>
-                <p className="mb-0"><b>Duration:</b> {flight.duration}</p>
-              </div>
+          {/* 🎫 LEFT SIDE: PREMIUM BOARDING PASS */}
+          <div className="flight-ticket-info">
+            <div className="ticket-header">
+              <h4 className="mb-0">BOARDING SUMMARY</h4>
+              <span className="pass-type-badge">{flight.type} CLASS</span>
             </div>
 
-            {/* SEAT AVAILABILITY */}
-            <div className="mb-3">
-              <h6 className="fw-bold">💺 Seat Availability</h6>
-              <div className="border rounded p-2 small">
-                <p className="mb-1"><b>Total Seats:</b> {TOTAL_SEATS}</p>
-                <p className="mb-1 text-danger">
-                  <b>Already Booked:</b> {bookedSeats}
-                </p>
-                <p className="mb-0 text-success">
-                  <b>Available Seats:</b> {availableSeats}
-                </p>
+            <div className="ticket-body">
+              <div className="airline-brand-box">
+                <div className="brand-icon-rounded">✈️</div>
+                <div>
+                  <h5 className="fw-bold mb-0 text-slate-800">{flight.airline} International</h5>
+                  <p className="text-indigo-400 small mb-0 fw-semibold">Operated by TourPlanner</p>
+                </div>
+              </div>
+
+              <div className="journey-path-display">
+                <div className="city-node text-start">
+                  <h3>BOM</h3>
+                  <p>Mumbai, IN</p>
+                </div>
+                <div className="flight-path-line mx-4 flex-grow-1">
+                  <i className="fas fa-plane"></i>
+                </div>
+                <div className="city-node text-end">
+                  <h3>{destination.name.substring(0, 3).toUpperCase()}</h3>
+                  <p>{destination.name}, IN</p>
+                </div>
+              </div>
+
+              <div className="flight-info-grid-modern">
+                <div className="grid-cell">
+                  <label>TIME</label>
+                  <span>{flight.time || "09:00 AM"}</span>
+                </div>
+                <div className="grid-cell">
+                  <label>DURATION</label>
+                  <span>{flight.duration || "2h 30m"}</span>
+                </div>
+                <div className="grid-cell">
+                  <label>AIRCRAFT</label>
+                  <span>Airbus A321 Neo</span>
+                </div>
+                <div className="grid-cell">
+                  <label>SERVICE</label>
+                  <span>Economy Plus</span>
+                </div>
+                <div className="grid-cell">
+                  <label>GATE</label>
+                  <span>Terminal 2, G14</span>
+                </div>
+                <div className="grid-cell">
+                  <label>STATUS</label>
+                  <span className="text-success fw-bold">ON TIME</span>
+                </div>
               </div>
             </div>
-
           </div>
 
-          {/* RIGHT SIDE */}
-          <div className="col-md-6">
+          {/* 📝 RIGHT SIDE: CLEAN PASSENGER FORM */}
+          <div className="passenger-form-card">
+            <div className="form-header-title">
+              <i className="fas fa-user-circle"></i>
+              <span>Traveler Information</span>
+            </div>
 
-            {/* PASSENGER DETAILS */}
-            <div className="mb-3">
-              <h6 className="fw-bold">👤 Passenger Details</h6>
-              <div className="border rounded p-2">
-                <input
-                  type="text"
-                  className="form-control mb-2"
-                  placeholder="Full Name"
-                  value={passenger.name}
-                  onChange={(e) =>
-                    setPassenger({ ...passenger, name: e.target.value })
-                  }
-                />
-                <input
-                  type="email"
-                  className="form-control mb-2"
-                  placeholder="Email"
-                  value={passenger.email}
-                  onChange={(e) =>
-                    setPassenger({ ...passenger, email: e.target.value })
-                  }
-                />
-                <input
-                  type="tel"
-                  className="form-control"
-                  placeholder="Mobile Number"
-                  value={passenger.mobile}
-                  onChange={(e) =>
-                    setPassenger({ ...passenger, mobile: e.target.value })
-                  }
-                />
+            <div className="custom-field-box">
+              <label>Full Passenger Name</label>
+              <input
+                type="text"
+                placeholder="Ex: Rathod Shweta"
+                value={passenger.name}
+                onChange={(e) => setPassenger({ ...passenger, name: e.target.value })}
+              />
+            </div>
+
+            <div className="row">
+              <div className="col-12 col-md-6">
+                <div className="custom-field-box">
+                  <label>Email Address</label>
+                  <input
+                    type="email"
+                    placeholder="shweta@example.com"
+                    value={passenger.email}
+                    onChange={(e) => setPassenger({ ...passenger, email: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="col-12 col-md-6">
+                <div className="custom-field-box">
+                  <label>Phone Number</label>
+                  <input
+                    type="tel"
+                    placeholder="+91 98765-43210"
+                    value={passenger.mobile}
+                    onChange={(e) => setPassenger({ ...passenger, mobile: e.target.value })}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* TRAVEL DETAILS */}
-            <div className="mb-3">
-              <h6 className="fw-bold">🧳 Travel Details</h6>
-              <div className="border rounded p-2">
-                <label className="form-label small">Journey Date</label>
-                <input
-                  type="date"
-                  className="form-control mb-2"
-                  value={journeyDate}
-                  onChange={(e) => setJourneyDate(e.target.value)}
-                />
-
-                <label className="form-label small">Adults</label>
-                <select
-                  className="form-select"
-                  value={adults}
-                  onChange={(e) => setAdults(Number(e.target.value))}
-                  disabled={availableSeats === 0}
-                >
-                  {Array.from(
-                    { length: Math.min(5, availableSeats) },
-                    (_, i) => i + 1
-                  ).map((n) => (
-                    <option key={n} value={n}>
-                      {n} Adult{n > 1 && "s"}
-                    </option>
-                  ))}
-                </select>
+            <div className="custom-field-box">
+              <label>Number of Adults</label>
+              <div className="toggle-group adults-selector">
+                {[1, 2, 3, 4, 5].map(n => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={`toggle-btn ${adults === n ? 'active' : ''}`}
+                    onClick={() => setAdults(n)}
+                    disabled={availableSeats < n}
+                  >
+                    {n}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* FARE SUMMARY */}
-            <div className="border rounded p-3 text-center mb-3">
-              <p className="mb-1">
-                Price per Adult: ₹{pricePerAdult}
-              </p>
-              <h5 className="fw-bold text-primary mb-0">
-                Total Amount: ₹{totalAmount}
-              </h5>
+            <div className="row">
+              <div className="col-12 col-md-6">
+                <div className="custom-field-box">
+                  <label>Date of Journey</label>
+                  <input
+                    type="date"
+                    value={journeyDate}
+                    onChange={(e) => setJourneyDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+              </div>
+              <div className="col-12 col-md-6">
+                <div className="custom-field-box">
+                  <label>Select Seat Type</label>
+                  <div className="toggle-group">
+                    {[
+                      { id: "Window", icon: "🪟" },
+                      { id: "Aisle", icon: "🚶" },
+                      { id: "Middle", icon: "🧱" }
+                    ].map(seat => (
+                      <button
+                        key={seat.id}
+                        type="button"
+                        className={`toggle-btn flex-grow-1 ${seatType === seat.id ? 'active' : ''}`}
+                        onClick={() => setSeatType(seat.id)}
+                      >
+                        {seat.icon} {seat.id}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="fare-breakdown-card">
+              <div className="fare-item">
+                <label>Adult Base Fare ({adults}x)</label>
+                <span>₹{pricePerAdult * adults}</span>
+              </div>
+              <div className="fare-item">
+                <label>Taxes & Online Processing</label>
+                <span className="text-success">FREE</span>
+              </div>
+              <div className="fare-total">
+                <label>Grand Total</label>
+                <span>₹{totalAmount}</span>
+              </div>
             </div>
 
             <button
-              className="btn btn-success w-100 fw-bold"
+              className="btn-proceed-secure shadow-lg"
               onClick={handleConfirm}
               disabled={availableSeats === 0}
             >
-              Confirm & Pay
+              {availableSeats === 0 ? "FLIGHT FULL" : "Finalize & Secure Payment"}
             </button>
-
+            <div className="text-center mt-4">
+              <p className="small text-muted mb-0">
+                <i className="fas fa-lock me-2 text-indigo-400"></i>
+                256-bit Secure Encrypted Transaction
+              </p>
+            </div>
           </div>
         </div>
       </div>

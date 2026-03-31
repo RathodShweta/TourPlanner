@@ -104,7 +104,12 @@ const Hotelpaydestin = () => {
 
   return (
     <div className="container py-3">
-      <h4 className="fw-bold text-center mb-4">🏨 Confirm Booking Details</h4>
+      <div className="d-flex justify-content-between align-items-center mb-4 px-3" style={{ maxWidth: "900px", margin: "0 auto" }}>
+        <h4 className="fw-bold m-0">🏨 Confirm Booking Details</h4>
+        <button className="btn btn-outline-dark btn-sm" onClick={() => navigate("/")}>
+          <i className="fas fa-home me-2"></i> Home
+        </button>
+      </div>
 
       <div className="card shadow-lg p-4 mx-auto responsive-card" style={{ maxWidth: "900px" }}>
         <div className="row g-4">
@@ -139,8 +144,8 @@ const Hotelpaydestin = () => {
                 {!travelDate
                   ? "Select Date"
                   : isAvailable
-                  ? "Select Rooms"
-                  : "Rooms Full"}
+                    ? "Select Rooms"
+                    : "Rooms Full"}
               </small>
             </div>
           </div>

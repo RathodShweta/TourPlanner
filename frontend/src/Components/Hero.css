@@ -1,0 +1,250 @@
+.hero-section {
+    padding: 40px 8% 120px;
+    background-color: #fff;
+    position: relative;
+    overflow: hidden;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+}
+
+.hero-text-area {
+    flex: 1;
+    max-width: 600px;
+}
+
+.hero-uptitle {
+    color: var(--secondary, #f43f5e);
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+    display: block;
+    letter-spacing: 1px;
+}
+
+.hero-main-title {
+    font-size: clamp(3.5rem, 6vw, 5.5rem);
+    font-weight: 800;
+    color: #181E4B;
+    line-height: 1.1;
+    margin-bottom: 30px;
+    font-family: 'Volkhov', serif;
+}
+
+.hero-paragraph {
+    color: var(--gray, #5e6282);
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 40px;
+    max-width: 480px;
+}
+
+.hero-btns {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn-cta {
+    background: #F1A501;
+    color: white;
+    border: none;
+    padding: 18px 35px;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 15px 30px rgba(241, 165, 1, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cta:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(241, 165, 1, 0.4);
+}
+
+.btn-play {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #686D77;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-play:hover {
+    color: var(--secondary, #f43f5e);
+}
+
+.play-icon {
+    width: 52px;
+    height: 52px;
+    background: var(--secondary, #f43f5e);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    box-shadow: 0 10px 20px rgba(244, 63, 94, 0.2);
+}
+
+.hero-image-area {
+    flex: 1.2;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-blob {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    background: #FFF1DA;
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    z-index: -1;
+    filter: blur(40px);
+    opacity: 0.6;
+}
+
+.hero-img {
+    max-width: 85%;
+    max-height: 550px;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.1));
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.plane-decoration-1,
+.plane-decoration-2 {
+    position: absolute;
+    color: #E2E2E2;
+    font-size: 2rem;
+    z-index: -1;
+}
+
+.plane-decoration-1 {
+    top: 10%;
+    right: 10%;
+    transform: rotate(45deg);
+}
+
+.plane-decoration-2 {
+    bottom: 20%;
+    left: 0%;
+    transform: rotate(-30deg);
+}
+
+.traveler-badge {
+    position: absolute;
+    top: 20%;
+    left: 5%;
+    background: white;
+    padding: 12px 25px;
+    border-radius: 50px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    font-weight: 700;
+    color: #181E4B;
+    z-index: 20;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: bounce 3s ease-in-out infinite;
+}
+
+.traveler-badge::before {
+    content: '✨';
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Decorative Orbs */
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: 1;
+}
+
+.orb-1 {
+    width: 400px;
+    height: 400px;
+    background: rgba(213, 225, 255, 0.5);
+    top: -100px;
+    left: -100px;
+}
+
+.orb-2 {
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 230, 230, 0.5);
+    bottom: -50px;
+    right: -50px;
+}
+
+@media (max-width: 1024px) {
+    .hero-section {
+        flex-direction: column;
+        text-align: center;
+        padding-top: 100px;
+    }
+
+    .hero-content {
+        flex-direction: column;
+    }
+
+    .hero-text-area {
+        margin-bottom: 60px;
+    }
+
+    .hero-paragraph {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-btns {
+        justify-content: center;
+    }
+
+    .hero-img {
+        max-width: 75%;
+        max-height: 400px;
+    }
+}

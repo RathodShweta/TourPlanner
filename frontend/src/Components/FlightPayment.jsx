@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import "./FlightPayment.css";
 
 const STORAGE_KEY = "FlightBooking";
 
@@ -13,53 +16,89 @@ const FlightPayment = () => {
         passenger,
         journeyDate,
         adults,
+        seatType,
         totalAmount
-    } = state;
+    } = state || {};
 
-    const [status, setStatus] = useState("pending"); // pending | success | failed
+    const [status, setStatus] = useState("pending"); // pending | verifying | success
     const [txnId, setTxnId] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    /* 🔒 BACKEND SIMULATION (ADMIN DECIDES) */
-    const backendCheck = async () => {
-        try {
-            const response = await new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    resolve({
-                        approved: false, // 🔁 change to true for SUCCESS
-                        transactionId: "FLIGHT-TXN-" + Date.now()
-                    });
+    // 📄 PDF Receipt Generator & Printer
+    const downloadReceipt = useCallback((currentTxnId, autoPrint = false) => {
+        const doc = new jsPDF();
+        const tId = currentTxnId || txnId;
 
-                    // ❌ simulate backend down
-                    // reject("No response");
-                }, 1000);
-            });
+        // Header
+        doc.setFillColor(30, 41, 59); // Dark blue
+        doc.rect(0, 0, 210, 40, "F");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.text("TourPlanner Receipt", 105, 25, { align: "center" });
 
-            return response;
-        } catch {
-            return null;
+        // Content Styling
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(12);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Booking Confirmation", 15, 55);
+        doc.setFont("helvetica", "normal");
+
+        doc.text(`Booking ID: ${tId}`, 150, 55);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 150, 62);
+
+        // Grid of details
+        const tableData = [
+            ["Passenger Name", passenger?.name],
+            ["Email Address", passenger?.email],
+            ["Destination", `${destination?.name}, ${destination?.state || ""}`],
+            ["Airline", flight?.airline],
+            ["Flight No", "TP-" + (flight?.airline?.substring(0, 2).toUpperCase() || "FL") + "102"],
+            ["Journey Date", journeyDate],
+            ["Departure Time", flight?.time],
+            ["Seat Preference", seatType],
+            ["Adults", adults?.toString()],
+            ["Total Paid", "INR " + totalAmount]
+        ];
+
+        autoTable(doc, {
+            startY: 70,
+            head: [["Detail", "Information"]],
+            body: tableData,
+            theme: "striped",
+            headStyles: { fillColor: [79, 70, 229], textColor: [255, 255, 255] },
+            styles: { fontSize: 10, cellPadding: 5 }
+        });
+
+        const finalY = doc.lastAutoTable.finalY + 20;
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text("Thank you for choosing TourPlanner! Have a safe and happy journey.", 105, finalY, { align: "center" });
+        doc.text("Please present this receipt at the airport check-in counter.", 105, finalY + 7, { align: "center" });
+
+        doc.setDrawColor(79, 70, 229);
+        doc.setLineWidth(1);
+        doc.rect(140, finalY + 15, 50, 20);
+        doc.setTextColor(79, 70, 229);
+        doc.setFontSize(14);
+        doc.text("CONFIRMED", 165, finalY + 28, { align: "center" });
+
+        if (autoPrint) {
+            doc.autoPrint();
+            window.open(doc.output('bloburl'), '_blank');
         }
-    };
 
-    const startPayment = () => {
-        setStatus("pending");
-        setTxnId("");
+        doc.save(`TourPlanner_Booking_${tId}.pdf`);
+    }, [txnId, destination, flight, passenger, journeyDate, adults, seatType, totalAmount]);
 
-        // ⏳ SHOW QR FOR 5–6 SECONDS
-        setTimeout(async () => {
-            const response = await backendCheck();
+    const handleSimulatePayment = () => {
+        setLoading(true);
+        setStatus("verifying");
 
-            const finalStatus =
-                response && response.approved === true
-                    ? "success"
-                    : "failed";
-
-            const transactionId =
-                response?.transactionId || "FLIGHT-TXN-" + Date.now();
-
+        setTimeout(() => {
+            const transactionId = "TP-AIR-" + Math.random().toString(36).substr(2, 9).toUpperCase();
             setTxnId(transactionId);
-            setStatus(finalStatus);
 
-            /* ✅ SAVE BOTH SUCCESS & FAILED */
             const booking = {
                 id: transactionId,
                 destination,
@@ -67,222 +106,215 @@ const FlightPayment = () => {
                 passenger,
                 journeyDate,
                 adults,
+                seatType,
                 totalAmount,
-                status: finalStatus,
+                status: "success",
                 dateTime: new Date().toLocaleString()
             };
 
-            const prev =
-                JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            const prev = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify([...prev, booking]));
 
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify([...prev, booking])
-            );
-        }, 5500);
+            setStatus("success");
+            setLoading(false);
+
+            // ✅ Save to Backend Database
+            const token = localStorage.getItem("token");
+            if (token) {
+                fetch("http://localhost:5000/api/flight-bookings", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        destinationName: destination?.name,
+                        airline: flight?.airline,
+                        passengerName: passenger?.name,
+                        passengerEmail: passenger?.email,
+                        journeyDate,
+                        departureTime: flight?.time,
+                        seatType,
+                        adults,
+                        totalAmount,
+                        transactionId
+                    })
+                }).catch(err => console.error("DB Save Error:", err));
+            }
+
+            // 📧 Send confirmation email with PDF attachment
+            fetch("http://localhost:5000/api/bookings/send-confirmation", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: passenger?.email,
+                    name: passenger?.name,
+                    type: "flight",
+                    bookingDetails: {
+                        "Booking ID": transactionId,
+                        "Passenger Name": passenger?.name,
+                        "Airline": flight?.airline,
+                        "Destination": destination?.name,
+                        "Journey Date": journeyDate,
+                        "Seat Type": seatType,
+                        "Total Paid": "INR " + totalAmount
+                    }
+                })
+            }).catch(err => console.error("Email send error:", err));
+
+            setTimeout(() => {
+                downloadReceipt(transactionId, true);
+            }, 1000);
+
+        }, 3000);
     };
 
     useEffect(() => {
-        startPayment();
-    }, []);
+        if (!state) { navigate("/flights"); }
+    }, [state, navigate]);
+
+    if (!state) return null;
 
     return (
-        <div style={pageStyle}>
-            <div style={cardStyle}>
-                <h3 style={titleStyle}>🧾 Flight Payment</h3>
+        <div className="payment-view-container">
+            <div className="container">
+                <div className="payment-card-master row g-0">
 
-                {/* PASSENGER */}
-                <Section title="👤 Passenger Details">
-                    <Row label="Name" value={passenger.name} />
-                    <Row label="Email" value={passenger.email} />
-                </Section>
+                    {status !== "success" ? (
+                        <>
+                            {/* LEFT COLUMN: PAYMENT */}
+                            <div className="col-lg-7 payment-main-section">
+                                <div className="payment-header">
+                                    <h2>Secure Payment</h2>
+                                    <p>Scan the code below with any UPI app to pay ₹{totalAmount}</p>
+                                </div>
 
-                {/* FLIGHT */}
-                <Section title="✈️ Flight Details">
-                    <Row label="From" value="Your City" />
-                    <Row label="To" value={destination.name} />
-                    <Row label="Airline" value={flight.airline} />
-                    <Row label="Type" value={flight.type} />
-                    <Row label="Departure" value={flight.time} />
-                    <Row label="Date" value={journeyDate} />
-                    <Row label="Passengers" value={`${adults} Adult(s)`} />
-                </Section>
+                                <div className={`qr-display-wrapper ${status === "verifying" ? "verifying" : ""}`}>
+                                    <div className="upi-id-badge">
+                                        <i className="fas fa-wallet me-2"></i> rathodshweta281@axl
+                                    </div>
 
-                {/* AMOUNT */}
-                <div style={amountBox}>
-                    <strong>Total Amount: ₹{totalAmount}</strong>
-                </div>
+                                    <div className="qr-image-container">
+                                        <img
+                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`upi://pay?pa=rathodshweta281@axl&pn=TourPlanner&am=${totalAmount}&cu=INR&tn=FlightBooking`)}`}
+                                            alt="Payment QR"
+                                        />
+                                        {status === "pending" && <div className="scan-anim-line"></div>}
+                                    </div>
 
-                {/* ⏳ PENDING */}
-                {status === "pending" && (
-                    <div style={centerBox}>
-                        <img
-                            src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data=UPI"
-                            alt="QR"
-                            style={{
-                                width: "70px",
-                                height: "70px",
-                                marginBottom: "6px"
-                            }}
-                        />
+                                    {status === "verifying" ? (
+                                        <div className="verification-overlay">
+                                            <div className="spinner-border text-primary" style={{ width: '3rem', height: '3rem' }}></div>
+                                            <span>Verifying Payment...</span>
+                                        </div>
+                                    ) : (
+                                        <p className="text-muted small mb-4">Detection of payment is automatic after you scan.</p>
+                                    )}
 
-                        <p style={mutedText}>
-                            Waiting for payment confirmation...
-                        </p>
-                        <div className="spinner-border spinner-border-sm text-primary"></div>
-                    </div>
-                )}
+                                    <button
+                                        className="btn-confirm-payment"
+                                        onClick={handleSimulatePayment}
+                                        disabled={status === "verifying"}
+                                    >
+                                        {status === "verifying" ? "Processing..." : "I have Scanned & Paid"}
+                                    </button>
+                                </div>
 
-                {/* ❌ FAILED */}
-                {status === "failed" && (
-                    <div style={centerBox}>
-                        <div style={failedBox}>❌ Payment Failed</div>
-                        <button style={retryBtn} onClick={startPayment}>
-                            Retry Payment
-                        </button>
-                    </div>
-                )}
+                                <div className="trust-badges">
+                                    <div className="trust-badge"><i className="fas fa-lock text-success"></i> 256-bit SSL</div>
+                                    <div className="trust-badge"><i className="fas fa-check-circle text-primary"></i> Verified Merchant</div>
+                                    <div className="trust-badge"><i className="fas fa-shield-alt text-info"></i> Secure Flow</div>
+                                </div>
+                            </div>
 
-                {/* ✅ SUCCESS */}
-                {status === "success" && (
-                    <div style={centerBox}>
-                        <div style={successBox}>
-                            ✅ Payment Successful
-                            <div style={{ fontSize: "12px" }}>
-                                Txn ID: {txnId}
+                            {/* RIGHT COLUMN: SUMMARY */}
+                            <div className="col-lg-5 payment-summary-panel">
+                                <h3 className="summary-heading">Booking Summary</h3>
+
+                                <div className="summary-flight-card">
+                                    <div className="route-visualization">
+                                        <div className="code">BOM</div>
+                                        <div className="plane-line">
+                                            <i className="fas fa-plane"></i>
+                                        </div>
+                                        <div className="code">{destination?.name?.substring(0, 3).toUpperCase() || "DEST"}</div>
+                                    </div>
+                                    <p className="text-center small text-indigo-200 mb-0">{flight?.airline} • {flight?.time}</p>
+                                </div>
+
+                                <div className="summary-details">
+                                    <div className="detail-row">
+                                        <label>Passenger</label>
+                                        <span>{passenger?.name}</span>
+                                    </div>
+                                    <div className="detail-row">
+                                        <label>Journey Date</label>
+                                        <span>{journeyDate}</span>
+                                    </div>
+                                    <div className="detail-row">
+                                        <label>Seat Preference</label>
+                                        <span className="badge bg-primary px-3">{seatType}</span>
+                                    </div>
+                                    <div className="detail-row">
+                                        <label>Travelers</label>
+                                        <span>{adults} Adult(s)</span>
+                                    </div>
+
+                                    <div className="total-payable-box text-center">
+                                        <label className="d-block text-indigo-300 small mb-1">TOTAL AMOUNT</label>
+                                        <div className="amount">₹{totalAmount}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        /* SUCCESS VIEW - SMALLER COMPACT BOX */
+                        <div className="col-lg-10 mx-auto py-4 success-screen-wrapper">
+                            <div className="success-card shadow-sm border rounded-4 bg-white">
+                                <div className="success-icon-container">
+                                    <i className="fas fa-check"></i>
+                                </div>
+                                <h2 className="fw-bold mb-2">Booking Confirmed!</h2>
+                                <p className="text-muted mb-4 small-on-mobile">Your payment was successful and your tickets are ready.</p>
+
+                                <div className="success-info-card">
+                                    <div className="detail-row mb-2 border-bottom pb-2">
+                                        <label className="small text-muted">Transaction ID</label>
+                                        <span className="text-dark font-monospace small-text">{txnId}</span>
+                                    </div>
+                                    <div className="detail-row mb-2 border-bottom pb-2">
+                                        <label className="small text-muted">Booking Date</label>
+                                        <span className="text-dark small-text">{new Date().toLocaleDateString()}</span>
+                                    </div>
+                                    <div className="detail-row">
+                                        <label className="small text-muted">Payment Mode</label>
+                                        <span className="text-dark small-text">UPI Transfer</span>
+                                    </div>
+                                </div>
+
+                                <div className="success-actions mt-3">
+                                    <button onClick={() => downloadReceipt()} className="btn btn-warning btn-sm px-4 rounded-pill fw-bold text-white shadow-sm">
+                                        <i className="fas fa-file-pdf me-2"></i> Download Receipt
+                                    </button>
+                                    <a
+                                        href="https://docs.google.com/forms/d/e/1FAIpQLScumjRuWOFv97nyPT6qdplIBX1z4PNcb7Oylbd9jMnpDyIknA/viewform?usp=sf_link"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn btn-primary btn-sm px-4 rounded-pill fw-bold shadow-sm"
+                                    >
+                                        <i className="fas fa-star me-2"></i> Share Feedback
+                                    </a>
+                                    <Link to="/Profile" className="btn btn-dark btn-sm px-4 rounded-pill fw-bold">
+                                        View Book
+                                    </Link>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
-
-                {/* ALWAYS VISIBLE */}
-                <button
-                    style={historyBtn}
-                    onClick={() => navigate("/FlightBooking")}
-                >
-                    View Flight Booking History
-                </button>
+                    )}
+                </div>
             </div>
         </div>
     );
-};
-
-/* ---------- SMALL COMPONENTS ---------- */
-
-const Section = ({ title, children }) => (
-    <div style={sectionBox}>
-        <div style={sectionTitle}>{title}</div>
-        {children}
-    </div>
-);
-
-const Row = ({ label, value }) => (
-    <div style={rowStyle}>
-        <span>{label}</span>
-        <strong>{value}</strong>
-    </div>
-);
-
-/* ---------- STYLES ---------- */
-
-const pageStyle = {
-    minHeight: "calc(100vh - 70px)",
-    background: "#f4f6f9",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "10px",
-    paddingTop: "70px" // push content below fixed navbar
-};
-
-const cardStyle = {
-    width: "100%",
-    maxWidth: "min(420px, 95vw)",
-    background: "#ffffff",
-    borderRadius: "16px",
-    padding: "20px",
-    boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-};
-
-const titleStyle = {
-    textAlign: "center",
-    marginBottom: "16px"
-};
-
-const sectionBox = {
-    border: "1px solid #e0e0e0",
-    borderRadius: "10px",
-    padding: "10px",
-    marginBottom: "12px"
-};
-
-const sectionTitle = {
-    fontWeight: "600",
-    fontSize: "14px",
-    marginBottom: "6px"
-};
-
-const rowStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: "14px",
-    marginBottom: "4px"
-};
-
-const amountBox = {
-    background: "#eef3ff",
-    padding: "10px",
-    borderRadius: "10px",
-    textAlign: "center",
-    marginBottom: "12px"
-};
-
-const centerBox = {
-    textAlign: "center",
-    marginBottom: "12px"
-};
-
-const mutedText = {
-    fontSize: "12px",
-    color: "#666",
-    marginTop: "6px"
-};
-
-const successBox = {
-    background: "#d1e7dd",
-    padding: "10px",
-    borderRadius: "8px",
-    color: "#0f5132",
-    fontWeight: "600"
-};
-
-const failedBox = {
-    background: "#f8d7da",
-    padding: "10px",
-    borderRadius: "8px",
-    color: "#842029",
-    fontWeight: "600",
-    marginBottom: "8px"
-};
-
-const retryBtn = {
-    width: "100%",
-    padding: "10px",
-    background: "#ffc107",
-    border: "none",
-    borderRadius: "8px",
-    fontWeight: "600",
-    cursor: "pointer"
-};
-
-const historyBtn = {
-    width: "100%",
-    padding: "10px",
-    background: "#212529",
-    color: "#ffffff",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer"
 };
 
 export default FlightPayment;

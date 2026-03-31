@@ -17,37 +17,62 @@ const handleChat = async (req, res) => {
 
     try {
         // System Prompt to define the "TourBot" persona
-        const systemPrompt = `You are "TourBot", a premium, helpful, and enthusiastic travel assistant for the "TourPlanner" app. 
-        Your goal is to help users plan trips, find hotels, flights, and suggest destinations in India and internationally.
+        const systemPrompt = `You are "TourBot", an advanced AI travel companion for the "TourPlanner" platform, similar in personality and versatility to "Meta AI" or "Snapchat My AI". 
+
+        YOUR PERSONALITY:
+        - You are a world-class travel expert, historian, and friendly local guide all in one.
+        - You are enthusiastic, witty, and deeply knowledgeable about global cultures, history, and geography.
+        - You don't just provide facts; you tell stories and provide "insider" tips.
+
+        YOUR CAPABILITIES:
+        1. GENERAL KNOWLEDGE: Answer ANY question about travel, geography, history, or culture. If a user asks about the history of the Taj Mahal or the best time to visit Tokyo, provide rich, detailed answers.
+        2. SMART SUGGESTIONS: Suggest the best hotels, hidden restaurants, and "must-see" spots based on the user's vibe (e.g., luxury, backpacker, foodie).
+        3. WEBSITE INTEGRATION: While you are a general AI, you are also the heart of TourPlanner. Always link your advice back to our tools:
+           - Destinations: /Destinations
+           - Flights: /Flights
+           - Hotels: /Hotels
+           - Help: /FAQ
+        4. HISTORY & DRILL-DOWN: When a user mentions a place, feel free to give a 1-2 sentence "fun fact" or historical snippet to make the conversation engaging.
+
+        GUIDELINES:
+        - Use Markdown for beautiful formatting (bold, lists, headers).
+        - Use emojis to keep it lively (🏔️, 🏛️, 🍜, ✈️).
+        - If a user asks for something completely unrelated to travel (like math or coding), politely answer but steer the conversation back to their next potential adventure.
+        - For itineraries, be specific and organized.
         
-        Guidelines:
-        1. Keep responses concise but informative.
-        2. Use Markdown formatting (bold, bullet points) to make itineraries and suggestions easy to read.
-        3. Be proactive: if a user asks for a destination, suggest a budget or a quick 3-4 day itinerary.
-        4. When suggesting hotels, emphasize comfort and value.
-        5. If asked about booking, guide them to the relevant sections of the "TourPlanner" app (Login, Signup, Flights, Hotels).
-        6. Use a friendly, professional tone with occasional travel-related emojis.
-        7. DO NOT repeat yourself. Provide fresh, unique advice for every query.
-        8. If you don't know something specific, offer to help search for it or suggest a related alternative.
-        9. ALWAYS format your response in a way that looks great in a chat bubble.
-        
-        Current context: The user is browsing the TourPlanner website.`;
+        Example: If they ask "What's the history of Goa?", don't just say "It's a state." Talk about the Portuguese influence, the churches, and how they can book a heritage tour on our /Destinations page.`;
 
         // Prepare the chat with history if provided
         const prepareChat = (modelName) => {
-            const tempModel = genAI.getGenerativeModel({ model: modelName });
+            const tempModel = genAI.getGenerativeModel({ 
+                model: modelName,
+                systemInstruction: systemPrompt,
+            });
+
+            // Gemini background history MUST start with the 'user' role.
+            // Let's filter/slice the history to ensure this.
+            let validHistory = [];
+            if (history && history.length > 0) {
+                validHistory = history
+                    .map(msg => ({
+                        role: msg.from === "bot" ? "model" : "user",
+                        parts: [{ text: msg.text }],
+                    }));
+                
+                // If it starts with model, remove it
+                while (validHistory.length > 0 && validHistory[0].role === "model") {
+                    validHistory.shift();
+                }
+            }
+
             return tempModel.startChat({
-                history: history ? history.map(msg => ({
-                    role: msg.from === "bot" ? "model" : "user",
-                    parts: [{ text: msg.text }],
-                })) : [],
+                history: validHistory,
                 generationConfig: {
                     maxOutputTokens: 1000,
                 },
             });
         };
 
-        // Try different models if one fails
         // Try different models if one fails
         const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
         let lastError = null;
@@ -56,38 +81,39 @@ const handleChat = async (req, res) => {
         for (const modelName of modelsToTry) {
             try {
                 const chat = prepareChat(modelName);
-                const finalPrompt = history && history.length > 0 ? message : `${systemPrompt}\n\nUser: ${message}`;
-                const result = await chat.sendMessage(finalPrompt);
+                const result = await chat.sendMessage(message);
                 const response = await result.response;
                 reply = response.text();
                 if (reply) break;
             } catch (err) {
                 lastError = err;
-                if (!err.message.toLowerCase().includes("not found") && !err.message.toLowerCase().includes("not supported")) {
-                    break; // stop if it's a real error like invalid key
+                console.error(`Error with model ${modelName}:`, err.message);
+                if (err.message.toLowerCase().includes("not found") || err.message.toLowerCase().includes("not supported")) {
+                    continue; 
                 }
+                break;
             }
         }
 
         // --- RULE-BASED FALLBACK (If AI fails) ---
         if (!reply) {
-            console.warn("TourBot: AI failed, using rule-based fallback.");
             const msg = message.toLowerCase();
             if (msg.includes("goa")) {
-                reply = "Goa is amazing! 🌴 For a 4-day trip, I recommend North Goa for vibrant beaches like Baga and South Goa for a peaceful stay in Palolem. Budget around ₹20,000.";
+                reply = "Goa is a coastal paradise with beautiful beaches like Calangute and Baga. You can explore the Portuguese heritage in Old Goa or enjoy the vibrant nightlife!";
             } else if (msg.includes("manali")) {
-                reply = "Manali is a perfect mountain getaway! 🏔️ Don't miss Solang Valley and Old Manali's cafes. Best visited between October and June.";
+                reply = "Manali is a stunning mountain station. I recommend visiting Solang Valley for adventure sports and visiting the Hadimba Temple for its history.";
             } else if (msg.includes("hotel") || msg.includes("stay")) {
-                reply = "I can help with hotels! We have great options in Mumbai, Delhi, and Goa. You can check the 'Hotels' section in the app for the best deals.";
+                reply = "Searching for the perfect stay? Check out our '/Hotels' section for curated luxury and budget options across India.";
             } else if (msg.includes("flight") || msg.includes("cheap")) {
-                reply = "Looking for cheap flights? ✈️ I recommend booking at least 3 weeks in advance. Check our 'Flights' section for real-time prices!";
+                reply = "I can help you find flights! Head over to '/Flights' to compare prices and book your next journey.";
+            } else if (msg.includes("history") || msg.includes("fact")) {
+                reply = "Every destination has a story! For example, did you know that Jaipur is known as the Pink City because it was painted pink to welcome Prince Albert in 1876?";
             } else {
-                reply = "I'm currently in 'offline mode' as I'm having trouble connecting to my AI brain. But I can still help! Are you interested in Goa, Manali, or booking a hotel?";
+                reply = "I'm having a hard time finding a specific answer for that right now. Could you please tell me more about where you want to go or what you want to do?";
             }
 
-            // Still report the AI error in the console but provide a working response
             return res.json({
-                reply: `⚠️ (Offline Mode) ${reply}`,
+                reply: `${reply}`,
                 isFallback: true,
                 error: lastError ? lastError.message : "AI model connectivity issue"
             });

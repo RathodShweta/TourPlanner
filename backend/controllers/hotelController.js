@@ -18,3 +18,22 @@ exports.getAllHotels = async (req, res) => {
     });
   }
 };
+
+// CREATE a new hotel (Admin Only)
+exports.createHotel = async (req, res) => {
+  try {
+    const hotel = new Hotel(req.body);
+    await hotel.save();
+
+    res.status(201).json({
+      success: true,
+      data: hotel,
+    });
+  } catch (error) {
+    console.error("Create hotel error:", error);
+    res.status(400).json({
+      success: false,
+      message: error.message || "Failed to create hotel",
+    });
+  }
+};

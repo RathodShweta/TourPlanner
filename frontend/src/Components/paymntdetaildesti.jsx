@@ -1,157 +1,168 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import "./PaymentDetailDesti.css";
 
 const PaymentDetailDesti = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const place = state?.place;
   if (!place) {
-    return <p className="text-center mt-5">No destination selected</p>;
+    return (
+      <div className="container py-5 text-center">
+        <i className="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+        <h2 className="text-secondary">No Destination Selected</h2>
+        <button className="btn btn-primary mt-3" onClick={() => navigate("/destinations")}>Go to Destinations</button>
+      </div>
+    );
   }
 
   return (
-    <div className="container py-5">
+    <div className="payment-detail-container page-fade-in">
+      {/* ================= HERO SECTION ================= */}
+      <div className="destination-detail-hero">
+        <div
+          id="destinationCarousel"
+          className="carousel slide hero-carousel"
+          data-bs-ride="carousel"
+        >
+          <div className="carousel-inner h-100">
+            {place.images.map((img, index) => (
+              <div
+                key={index}
+                className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}
+              >
+                <img
+                  src={img}
+                  alt={`${place.name}`}
+                  className="d-block w-100"
+                />
+              </div>
+            ))}
+          </div>
+          {place.images.length > 1 && (
+            <>
+              <button className="carousel-control-prev" type="button" data-bs-target="#destinationCarousel" data-bs-slide="prev">
+                <span className="carousel-control-prev-icon"></span>
+              </button>
+              <button className="carousel-control-next" type="button" data-bs-target="#destinationCarousel" data-bs-slide="next">
+                <span className="carousel-control-next-icon"></span>
+              </button>
+            </>
+          )}
+        </div>
+        <div className="hero-overlay">
+          <div className="hero-info-content">
+            <h2>{place.name}</h2>
+            <p><i className="fas fa-map-marker-alt me-2"></i> {place.state}</p>
+          </div>
+        </div>
+      </div>
 
-      {/* ================= IMAGE GALLERY (3–5 Images) ================= */}
-      <div
-        id="destinationCarousel"
-        className="carousel slide mb-4 shadow rounded"
-        data-bs-ride="carousel"
-      >
-        <div className="carousel-inner">
-          {place.images.map((img, index) => (
-            <div
-              key={index}
-              className={`carousel-item ${index === 0 ? "active" : ""}`}
-            >
-              <img
-                src={img}
-                alt={`${place.name} ${index + 1}`}
-                className="d-block w-100"
-                style={{ height: "380px", objectFit: "cover" }}
-              />
+      <div className="container py-4">
+        <div className="detail-layout-grid">
+          {/* LEFT CONTENT AREA */}
+          <div className="main-detail-content">
+            {/* About Section */}
+            <div className="info-section-card">
+              <h4 className="section-title"><i className="fas fa-book-open"></i> Explore the Essence</h4>
+              <p className="desc-paragraph">{place.desc}</p>
             </div>
-          ))}
-        </div>
 
-        {/* Controls */}
-        <button
-          className="carousel-control-prev"
-          type="button"
-          data-bs-target="#destinationCarousel"
-          data-bs-slide="prev"
-        >
-          <span className="carousel-control-prev-icon"></span>
-        </button>
-        <button
-          className="carousel-control-next"
-          type="button"
-          data-bs-target="#destinationCarousel"
-          data-bs-slide="next"
-        >
-          <span className="carousel-control-next-icon"></span>
-        </button>
-      </div>
+            {/* Famous Places Section */}
+            <div className="info-section-card">
+              <h4 className="section-title"><i className="fas fa-camera-retro"></i> Must Visit Spots</h4>
+              <div className="highlights-grid">
+                {place.famousPlaces?.map((p, i) => (
+                  <div key={i} className="highlight-item">
+                    <i className="fas fa-check-circle"></i> {p}
+                  </div>
+                ))}
+              </div>
+            </div>
 
-      {/* ================= DESTINATION HEADER ================= */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 className="fw-bold mb-1">{place.name}</h2>
-          <p className="text-muted mb-0">📍 {place.state}</p>
-        </div>
-        <div className="text-end">
-          <h5 className="text-warning mb-1">{place.price}</h5>
-          <small>⭐ {place.rating} / 5</small>
-        </div>
-      </div>
+            {/* Iconic Food Section */}
+            <div className="info-section-card">
+              <h4 className="section-title"><i className="fas fa-utensils"></i> Iconic Flavours</h4>
+              <div className="highlights-grid">
+                {place.food?.map((f, i) => (
+                  <div key={i} className="highlight-item">
+                    <i className="fas fa-star" style={{ color: '#f59e0b' }}></i> {f}
+                  </div>
+                ))}
+              </div>
+            </div>
 
-      {/* ================= QUICK INFO ================= */}
-      <div className="row mb-4">
-        <div className="col-md-4">
-          <div className="border rounded p-3 h-100">
-            <b>Best Time</b>
-            <p className="text-muted mb-0">{place.bestTime}</p>
+            {/* Transport Section */}
+            <div className="info-section-card">
+              <h4 className="section-title"><i className="fas fa-route"></i> Seamless Connectivity</h4>
+              <div className="highlights-grid">
+                {place.transport?.map((t, i) => (
+                  <div key={i} className="highlight-item">
+                    <i className="fas fa-shuttle-van" style={{ color: '#3b82f6' }}></i> {t}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Hotels Section */}
+            <div className="info-section-card">
+              <h4 className="section-title"><i className="fas fa-hotel"></i> Premium Stays</h4>
+              <div className="highlights-grid">
+                {place.hotels?.map((h, i) => (
+                  <div key={i} className="highlight-item">
+                    <i className="fas fa-concierge-bell" style={{ color: '#8b5cf6' }}></i> {h}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="col-md-4">
-          <div className="border rounded p-3 h-100">
-            <b>Season</b>
-            <p className="text-muted mb-0">{place.season}</p>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="border rounded p-3 h-100">
-            <b>Starting Budget</b>
-            <p className="text-muted mb-0">{place.price}</p>
-          </div>
-        </div>
-      </div>
 
-      {/* ================= ABOUT ================= */}
-      <div className="mb-4">
-        <h4 className="fw-bold">📖 About {place.name}</h4>
-        <p className="text-muted">{place.desc}</p>
-      </div>
+          {/* RIGHT SIDEBAR - BOOKING BOX */}
+          <div className="sidebar-booking-area">
+            <div className="booking-sidebar-card">
+              <div className="price-box">
+                <small>Starting From</small>
+                <h3>{place.price}</h3>
+                <div className="rating-display">
+                  <i className="fas fa-star me-2"></i> {place.rating} / 5.0
+                </div>
+              </div>
 
-      {/* ================= FAMOUS PLACES ================= */}
-      <div className="mb-4">
-        <h4 className="fw-bold">📍 Famous Places to Visit</h4>
-        <ul className="list-group list-group-flush">
-          {place.famousPlaces.map((p, i) => (
-            <li key={i} className="list-group-item">✔ {p}</li>
-          ))}
-        </ul>
-      </div>
+              <div className="sidebar-stats">
+                <div className="stat-row">
+                  <span className="stat-label">Duration</span>
+                  <span className="stat-value">{place.duration}</span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-label">Best Season</span>
+                  <span className="stat-value">{place.bestSeason}</span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-label">Category</span>
+                  <span className="stat-value">{place.budgetType} Budget</span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-label">Status</span>
+                  <span className="stat-value text-success">Available</span>
+                </div>
+              </div>
 
-      {/* ================= LOCAL FOOD ================= */}
-      <div className="mb-4">
-        <h4 className="fw-bold">🍽️ Local Food</h4>
-        <ul className="list-group list-group-flush">
-          {place.food.map((f, i) => (
-            <li key={i} className="list-group-item">🍴 {f}</li>
-          ))}
-        </ul>
-      </div>
+              {/* <button className="btn-proceed-pay" onClick={() => navigate("/payment")}>
+                Confirm Selection & Proceed
+              </button> */}
 
-      {/* ================= HOTELS ================= */}
-      <div className="mb-4">
-        <h4 className="fw-bold">🏨 Hotels Available</h4>
-        <ul className="list-group list-group-flush">
-          {place.hotels.map((h, i) => (
-            <li key={i} className="list-group-item">🏨 {h}</li>
-          ))}
-        </ul>
-      </div>
-
-      {/* ================= TRANSPORT ================= */}
-      <div className="mb-5">
-        <h4 className="fw-bold">🚕 Transport Options</h4>
-        <ul className="list-group list-group-flush">
-          {place.transport.map((t, i) => (
-            <li key={i} className="list-group-item">🚗 {t}</li>
-          ))}
-        </ul>
-      </div>
-
-      {/* ================= ACTION BAR ================= */}
-      <div className="card shadow-sm">
-        <div className="card-body d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">Ready to book your trip to {place.name}?</h5>
-          <div>
-            <button
-              className="btn btn-outline-secondary me-2"
-              onClick={() => navigate(-1)}
-            >
-              ⬅ Back
-            </button>
-            <button className="btn btn-warning fw-bold">
-              Proceed to Payment
-            </button>
+              <button className="btn-back-link" onClick={() => navigate(-1)}>
+                <i className="fas fa-chevron-left me-2"></i> Choose Another Destination
+              </button>
+            </div>
           </div>
         </div>
       </div>
-
     </div>
   );
 };
